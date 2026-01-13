@@ -1,0 +1,11 @@
+[project]
+name = "atoms-agent-with-tools"
+version = "0.1.0"
+description = "Agent with custom function tools using decorator pattern"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "smallestai>=4.2.0",
+    "python-dotenv",
+    "loguru",
+]

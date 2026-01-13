@@ -1,37 +1,122 @@
-# Agent with Custom Tools
+# Agent with Tools
 
-Build an agent that can call custom Python functions.
+Build an agent with custom function tools that the LLM can call.
 
-## What it does
+## Overview
 
-- Check weather for any city
-- Book appointments
-- List scheduled appointments
+This example demonstrates:
+- **@function_tool decorator** for defining tools
+- **ToolRegistry** for managing tools
+- **Tool execution** in generate_response
 
 ## Files
 
-- `agent.py` - Agent class with function tools
-- `server.py` - WebSocket server entry point
+- `app.py` - Server entry point
+- `assistant_agent.py` - Agent with tool definitions
+- `pyproject.toml` - Project dependencies
 
-## Run
+## Tools Included
 
+| Tool | Description |
+|------|-------------|
+| `get_weather` | Get current weather for a city |
+| `book_appointment` | Book an appointment |
+| `list_appointments` | List scheduled appointments |
+| `end_call` | End the call gracefully |
+
+## Setup
+
+1. Install dependencies:
 ```bash
-# Terminal 1: Start server
-python server.py
+pip install smallestai python-dotenv loguru
+```
 
-# Terminal 2: Connect chat
+2. Create `.env` file:
+```bash
+OPENAI_API_KEY=your_openai_key
+```
+
+## Running the Example
+
+Start the server:
+```bash
+python app.py
+```
+
+Connect with the CLI:
+```bash
 smallestai agent chat
 ```
 
-## Try it
+## Example Interactions
 
-Once connected, try:
-- "What's the weather in Tokyo?"
-- "Book a haircut for tomorrow at 2pm"
-- "What appointments do I have?"
+**Weather Query**:
+```
+User: What's the weather in Tokyo?
+Assistant: The weather in Tokyo is Clear, 68°F.
+```
 
-## Key Concepts
+**Book Appointment**:
+```
+User: Book a haircut for tomorrow at 2pm
+Assistant: Booked haircut for 2024-01-16 at 14:00. Confirmation sent!
+```
 
-- `@function_tool()` decorator to expose functions to LLM
-- Docstrings become tool descriptions
-- Function args become tool parameters
+## Key Code
+
+### Define Tools with Decorator
+
+```python
+from smallestai.atoms.agent.tools import function_tool
+
+@function_tool()
+def get_weather(self, city: str) -> str:
+    """Get the current weather for a city.
+    
+    Args:
+        city: The city name to check weather for.
+    """
+    return f"The weather in {city} is sunny, 72°F"
+```
+
+### Register Tools in Agent
+
+```python
+from smallestai.atoms.agent.tools import ToolRegistry
+
+class AssistantAgent(OutputAgentNode):
+    def __init__(self):
+        super().__init__(name="assistant-agent")
+        
+        # Initialize tool registry
+        self.tool_registry = ToolRegistry()
+        self.tool_registry.discover(self)  # Auto-discover @function_tool methods
+        self.tool_schemas = self.tool_registry.get_schemas()
+```
+
+### Execute Tools in generate_response
+
+```python
+async def generate_response(self):
+    response = await self.llm.chat(
+        messages=self.context.messages,
+        stream=True,
+        tools=self.tool_schemas
+    )
+    
+    tool_calls = []
+    async for chunk in response:
+        if chunk.content:
+            yield chunk.content
+        if chunk.tool_calls:
+            tool_calls.extend(chunk.tool_calls)
+    
+    if tool_calls:
+        results = await self.tool_registry.execute(tool_calls, parallel=True)
+        # Add results to context and get final response
+```
+
+## Next Steps
+
+- See [Call Control](../call_control) for ending calls and transfers
+- See [Getting Started](../getting_started) for basic SDK usage
