@@ -10,7 +10,13 @@ from smallestai.atoms.agent.session import AgentSession
 
 async def setup_session(session: AgentSession):
     """Configure support agent with call control capabilities."""
-    agent = SupportAgent(transfer_number="+1234567890")
+    
+    # Configure transfer numbers
+    agent = SupportAgent(
+        cold_transfer_number="+1234567890",   # General support
+        warm_transfer_number="+1987654321"    # Supervisor/escalation
+    )
+    
     session.add_node(agent)
     await session.start()
 
@@ -19,7 +25,10 @@ async def setup_session(session: AgentSession):
         logger.info(f"Event received: {event.type}")
 
         if isinstance(event, SDKSystemUserJoinedEvent):
-            await agent.speak("Hi! I'm your support agent. I can help with orders, or connect you to a human. How can I assist?")
+            await agent.speak(
+                "Hi! I'm your support agent. I can help with orders, "
+                "or connect you to a human. How can I assist?"
+            )
 
     await session.wait_until_complete()
     logger.success("Session complete")

@@ -1,96 +1,91 @@
 # Getting Started
 
-Complete quickstart: initialize the SDK, make an outbound call, and retrieve analytics.
+Your first Atoms agent - from zero to a running AI assistant.
 
 ## Overview
 
 This example demonstrates:
-- **AtomsClient** initialization
-- **Outbound calls** to phone numbers
-- **Analytics** retrieval via REST API
+- **OutputAgentNode** - The base class for conversational agents
+- **generate_response()** - Streaming LLM responses
+- **AtomsApp** - Running the agent server
+- **Event handling** - Greeting users on join
 
 ## Files
 
-- `app.py` - Main entry point with full workflow
+- `app.py` - Server entry point
+- `my_agent.py` - Simple conversational agent
 - `pyproject.toml` - Project dependencies
 
 ## Setup
 
 1. Install dependencies:
 ```bash
-pip install smallestai python-dotenv requests loguru
+pip install smallestai python-dotenv loguru
 ```
 
 2. Create `.env` file:
 ```bash
-SMALLEST_API_KEY=your_api_key
-AGENT_ID=your_agent_id
-PHONE_NUMBER=+1234567890
+OPENAI_API_KEY=your_openai_key
 ```
 
 ## Running the Example
 
+Start the server:
 ```bash
 python app.py
 ```
 
-The script will:
-1. Initialize the AtomsClient
-2. Make an outbound call to the configured phone number
-3. Wait for the call to complete
-4. Retrieve and display call analytics
+Connect with the CLI:
+```bash
+smallestai agent chat
+```
 
-## Example Output
+## Example Interaction
 
 ```
-2024-01-15 10:30:00 | INFO | ==================================================
-2024-01-15 10:30:00 | INFO | ATOMS SDK - Getting Started
-2024-01-15 10:30:00 | INFO | ==================================================
-2024-01-15 10:30:00 | INFO | 1. Initializing client...
-2024-01-15 10:30:00 | SUCCESS | Client ready
-2024-01-15 10:30:01 | INFO | 2. Calling +1234567890...
-2024-01-15 10:30:02 | SUCCESS | Call started: CALL-1767900635803-8a3bee
-2024-01-15 10:30:02 | INFO | 3. Waiting for call to complete...
-2024-01-15 10:30:32 | INFO | 4. Getting call analytics...
-2024-01-15 10:30:33 | INFO | Status: completed
-2024-01-15 10:30:33 | INFO | Duration: 28s
-2024-01-15 10:30:33 | SUCCESS | Done!
+Assistant: Hello! I'm your AI assistant. How can I help you today?
+You: What's the capital of France?
+Assistant: The capital of France is Paris.
 ```
 
 ## Key Code
 
-### Initialize Client
+### Define an Agent
 
 ```python
-from smallestai.atoms import AtomsClient
+from smallestai.atoms.agent.nodes import OutputAgentNode
+from smallestai.atoms.agent.clients.openai import OpenAIClient
 
-client = AtomsClient()
+class MyAgent(OutputAgentNode):
+    def __init__(self):
+        super().__init__(name="my-agent")
+        self.llm = OpenAIClient(model="gpt-4o-mini")
+
+    async def generate_response(self):
+        response = await self.llm.chat(
+            messages=self.context.messages,
+            stream=True
+        )
+        async for chunk in response:
+            if chunk.content:
+                yield chunk.content
 ```
 
-### Make Outbound Call
+### Run the Server
 
 ```python
-response = client.start_outbound_call(
-    conversation_outbound_post_request={
-        "agentId": agent_id,
-        "phoneNumber": "+1234567890"
-    }
-)
-call_id = response.data.conversation_id
-```
+from smallestai.atoms.agent.server import AtomsApp
+from smallestai.atoms.agent.session import AgentSession
 
-### Get Analytics
+async def setup_session(session: AgentSession):
+    agent = MyAgent()
+    session.add_node(agent)
+    await session.start()
+    await session.wait_until_complete()
 
-```python
-import requests
-
-resp = requests.get(
-    f"https://atoms.smallest.ai/api/v1/conversation/{call_id}",
-    headers={"Authorization": f"Bearer {api_key}"}
-)
-data = resp.json()["data"]
-print(f"Duration: {data['duration']}s")
-print(f"Status: {data['status']}")
+if __name__ == "__main__":
+    app = AtomsApp(setup_handler=setup_session)
+    app.run()
 ```
 
 ## Next Steps

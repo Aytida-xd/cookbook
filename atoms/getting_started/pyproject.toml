@@ -1,12 +1,11 @@
 [project]
 name = "atoms-getting-started"
 version = "0.1.0"
-description = "Getting started with the Atoms SDK - outbound calls and analytics"
+description = "Your first Atoms agent - simple conversational AI"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
     "smallestai>=4.2.0",
     "python-dotenv",
-    "requests",
     "loguru",
 ]
