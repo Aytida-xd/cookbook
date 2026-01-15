@@ -1,0 +1,15 @@
+{
+  "name": "stt-batch-basics",
+  "version": "1.0.0",
+  "description": "Smallest AI Lightning STT - Batch Transcription",
+  "main": "transcribe.js",
+  "scripts": {
+    "transcribe": "node transcribe.js"
+  },
+  "keywords": ["smallest-ai", "stt", "speech-to-text", "transcription"],
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
+
