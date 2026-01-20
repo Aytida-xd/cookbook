@@ -20,7 +20,7 @@ from pathlib import Path
 
 import requests
 
-API_URL = "https://waves-api.smallest.ai/api/v1/lightning/get_text"
+API_URL = "https://waves-api.smallest.ai/api/v1/pulse/get_text"
 OUTPUT_DIR = "."
 
 # The following are all the features supported by the POST endpoint (Pre-Recorded API)

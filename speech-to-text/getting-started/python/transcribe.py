@@ -2,7 +2,7 @@
 """
 Smallest AI Speech-to-Text - Getting Started
 
-The simplest way to transcribe audio using Smallest AI's Lightning STT API.
+The simplest way to transcribe audio using Smallest AI's Pulse STT API.
 
 Usage: python transcribe.py <audio_file>
 
@@ -14,7 +14,7 @@ import os
 import sys
 import requests
 
-API_URL = "https://waves-api.smallest.ai/api/v1/lightning/get_text"
+API_URL = "https://waves-api.smallest.ai/api/v1/pulse/get_text"
 
 # Features
 LANGUAGE = "en"  # Use ISO 639-1 codes or "multi" for auto-detect

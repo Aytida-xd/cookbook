@@ -17,7 +17,7 @@ const path = require("path");
 const WebSocket = require("ws");
 const wav = require("wav");
 
-const WS_URL = "wss://waves-api.smallest.ai/api/v1/lightning/get_text";
+const WS_URL = "wss://waves-api.smallest.ai/api/v1/pulse/get_text";
 const OUTPUT_DIR = ".";
 
 // The following are all the features supported by the WebSocket endpoint (Streaming API)

@@ -21,7 +21,7 @@ import gradio as gr
 import numpy as np
 from websockets.sync.client import connect
 
-WS_URL = "wss://waves-api.smallest.ai/api/v1/lightning/get_text"
+WS_URL = "wss://waves-api.smallest.ai/api/v1/pulse/get_text"
 SAMPLE_RATE = 16000
 API_KEY = os.environ.get("SMALLEST_API_KEY")
 if API_KEY is None:

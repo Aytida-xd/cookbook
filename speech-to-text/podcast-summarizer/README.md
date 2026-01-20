@@ -22,7 +22,7 @@ python python/summarize.py video_podcast.mp4
 
 ## How It Works
 
-1. **Transcription**: Uses Smallest AI Lightning STT to transcribe the audio/video
+1. **Transcription**: Uses Smallest AI Pulse STT to transcribe the audio/video
 2. **Summarization**: Sends transcript to OpenAI GPT-5 with a specialized prompt
 3. **Output**: Generates a structured Markdown summary
 

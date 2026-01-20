@@ -2,7 +2,7 @@
 /**
  * Smallest AI Speech-to-Text - Getting Started
  *
- * The simplest way to transcribe audio using Smallest AI's Lightning STT API.
+ * The simplest way to transcribe audio using Smallest AI's Pulse STT API.
  *
  * Usage: node transcribe.js <audio_file>
  *
@@ -12,7 +12,7 @@
 
 const fs = require("fs");
 
-const API_URL = "https://waves-api.smallest.ai/api/v1/lightning/get_text";
+const API_URL = "https://waves-api.smallest.ai/api/v1/pulse/get_text";
 
 // Features
 const LANGUAGE = "en"; // Use ISO 639-1 codes or "multi" for auto-detect

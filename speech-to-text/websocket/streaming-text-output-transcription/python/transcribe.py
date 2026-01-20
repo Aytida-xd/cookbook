@@ -23,7 +23,7 @@ import librosa
 import numpy as np
 import websockets
 
-WS_URL = "wss://waves-api.smallest.ai/api/v1/lightning/get_text"
+WS_URL = "wss://waves-api.smallest.ai/api/v1/pulse/get_text"
 OUTPUT_DIR = "."
 
 # The following are all the features supported by the WebSocket endpoint (Streaming API)

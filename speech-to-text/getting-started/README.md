@@ -1,6 +1,6 @@
 # Getting Started
 
-The simplest way to transcribe audio using Smallest AI's Lightning STT API.
+The simplest way to transcribe audio using Smallest AI's Pulse STT API.
 
 ## What You'll Learn
 

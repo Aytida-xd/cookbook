@@ -16,7 +16,7 @@
 const fs = require("fs");
 const path = require("path");
 
-const API_URL = "https://waves-api.smallest.ai/api/v1/lightning/get_text";
+const API_URL = "https://waves-api.smallest.ai/api/v1/pulse/get_text";
 const OUTPUT_DIR = ".";
 
 // The following are all the features supported by the POST endpoint (Pre-Recorded API)

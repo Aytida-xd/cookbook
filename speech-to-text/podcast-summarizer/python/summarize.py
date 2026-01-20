@@ -26,7 +26,7 @@ from pathlib import Path
 
 import requests
 
-API_URL = "https://waves-api.smallest.ai/api/v1/lightning/get_text"
+API_URL = "https://waves-api.smallest.ai/api/v1/pulse/get_text"
 
 LANGUAGE = "en"  # Use ISO 639-1 codes or "multi" for auto-detect
 

@@ -2,7 +2,7 @@
 
 > **Powered by [Pulse STT](https://waves-docs.smallest.ai/v4.0.0/content/speech-to-text-new/overview)**
 
-Convert audio to text using Smallest AI's Lightning Speech-to-Text API. Supports 30+ languages with industry-leading accuracy and speed.
+Convert audio to text using Smallest AI's Pulse Speech-to-Text API. Supports 30+ languages with industry-leading accuracy and speed.
 
 ## Examples
 
@@ -35,7 +35,7 @@ Get your API key at [smallest.ai/console](https://smallest.ai/console)
 - [Pre-recorded Audio](https://waves-docs.smallest.ai/v4.0.0/content/speech-to-text-new/pre-recorded/quickstart)
 - [Streaming Audio](https://waves-docs.smallest.ai/v4.0.0/content/speech-to-text-new/streaming/quickstart)
 - [Response Format](https://waves-docs.smallest.ai/v4.0.0/content/speech-to-text-new/realtime/response-format)
-- [API Reference](https://waves-docs.smallest.ai/v4.0.0/content/api-references/lightning-asr)
+- [API Reference](https://waves-docs.smallest.ai/v4.0.0/content/api-references/pulse-asr)
 
 ## Supported Languages
 

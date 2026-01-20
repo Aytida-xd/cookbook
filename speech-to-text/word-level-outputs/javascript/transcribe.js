@@ -15,7 +15,7 @@
 const fs = require("fs");
 const path = require("path");
 
-const API_URL = "https://waves-api.smallest.ai/api/v1/lightning/get_text";
+const API_URL = "https://waves-api.smallest.ai/api/v1/pulse/get_text";
 
 const LANGUAGE = "en"; // Use ISO 639-1 codes or "multi" for auto-detect
 const WORD_TIMESTAMPS = true;
