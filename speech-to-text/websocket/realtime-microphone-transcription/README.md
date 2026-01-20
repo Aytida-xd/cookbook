@@ -2,6 +2,8 @@
 
 Gradio web interface for real-time speech-to-text transcription from your microphone.
 
+![Demo](demo.gif)
+
 ## What You'll Learn
 
 - Build a web UI for live transcription
