@@ -30,7 +30,11 @@ export GROQ_API_KEY="your-groq-api-key"
 ## Usage
 
 ```bash
-streamlit run app.py
+# For the webapp
+streamlit run app/app.py
+
+# For the script
+python python/summarize.py
 ```
 
 ## How It Works
