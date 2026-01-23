@@ -20,6 +20,12 @@ Automatically join **Google Meet, Zoom, or Microsoft Teams**, transcribe with Pu
 5. **Pulse STT** transcribes with speaker diarization
 6. **GPT-4o** generates structured meeting notes with name mapping
 
+### Admitting the Bot
+
+When the bot joins, you'll see it in the "Waiting to be admitted" section. Click **Admit** to let it in:
+
+![Admit Bot](admit-bot.png)
+
 ---
 
 ## Intelligent Name Mapping
@@ -66,6 +72,62 @@ python python/bot.py "https://teams.microsoft.com/l/meetup-join/..." "Notes Bot"
 **Arguments:**
 - `<meet_url>` — Meeting URL (Google Meet, Zoom, or Microsoft Teams)
 - `[bot_name]` — Name the bot appears as (default: "Notes Bot")
+
+<details>
+<summary><strong>📋 Sample Run</strong> (click to expand)</summary>
+
+```
+$ python python/bot.py "https://meet.google.com/ivm-ojjk-htz" "Smallest Notetaker"
+
+Creating bot to join: https://meet.google.com/ivm-ojjk-htz
+Bot created: 4cf29b90-ddc8-4a29-957a-50f6e62ad7d3
+Bot will appear as: Smallest Notetaker
+--------------------------------------------------
+Waiting for meeting to end...
+Status: pending
+Bot is in waiting room. Please admit the bot.
+Bot is in waiting room. Please admit the bot.
+Recording...
+Recording...
+Meeting ended. Processing recordings...
+
+Fetching audio recording...
+Waiting for audio to be processed...
+Audio ready!
+Downloading audio...
+Saved: ivmojjkhtz_audio.mp3
+Transcribing with Pulse STT...
+Transcription complete
+Saved: ivmojjkhtz_transcript.txt
+Generating meeting notes with GPT-4o...
+Saved: ivmojjkhtz_notes.md
+
+==================================================
+MEETING NOTES
+==================================================
+# Meeting Notes
+
+**Date:** January 23, 2026
+
+## Attendees
+- Aditya, smallest.ai
+
+## Summary
+Aditya from smallest.ai conducted a demonstration of a meeting bot
+designed to transcribe and summarize meetings...
+
+## Action Items
+| Owner  | Task                           | Deadline |
+|--------|--------------------------------|----------|
+| Aditya | Finalize the meeting transcription | N/A  |
+
+## Notable Quotes
+- "This is a demo of testing the meeting bot..." - Aditya
+
+Done!
+```
+
+</details>
 
 ---
 
