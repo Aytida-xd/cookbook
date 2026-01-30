@@ -13,7 +13,7 @@ This cookbook is organized into focused modules, each demonstrating real-world u
 | Module | Description | Powered By |
 |--------|-------------|------------|
 | [Speech-to-Text](./speech-to-text/) | Transcription, subtitles, streaming, and more | [Pulse STT](https://waves-docs.smallest.ai/v4.0.0/content/speech-to-text-new/overview) |
-| [Atoms](./atoms/) | Voice AI agents with function calling | [Atoms SDK](https://waves-docs.smallest.ai) |
+| [Voice Agents](./voice-agents/) | Voice AI agents with function calling | [Atoms SDK](https://waves-docs.smallest.ai) |
 
 ---
 
@@ -61,15 +61,15 @@ Convert audio and video to text with industry-leading accuracy. Supports 30+ lan
 
 ---
 
-## Atoms Examples
+## Voice Agents Examples
 
 Build voice AI agents that can make calls, use tools, and handle complex conversations.
 
 | Example | Description |
 |---------|-------------|
-| [Getting Started](./atoms/getting_started/) | SDK setup and outbound calls |
-| [Agent with Tools](./atoms/agent_with_tools/) | Custom function calling |
-| [Call Control](./atoms/call_control/) | End calls, transfer to humans |
+| [Getting Started](./voice-agents/getting_started/) | SDK setup and outbound calls |
+| [Agent with Tools](./voice-agents/agent_with_tools/) | Custom function calling |
+| [Call Control](./voice-agents/call_control/) | End calls, transfer to humans |
 
 ---
 
