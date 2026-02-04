@@ -83,7 +83,7 @@ class STTClient:
         url = f"{STT_WS_URL}?{urlencode(params)}"
         headers = {"Authorization": f"Bearer {self.api_key}"}
 
-        self.ws = await websockets.connect(url, extra_headers=headers, ping_interval=20)
+        self.ws = await websockets.connect(url, additional_headers=headers, open_timeout=30)
         self.running = True
 
         self.capture_thread = threading.Thread(target=self._capture_audio, daemon=True)

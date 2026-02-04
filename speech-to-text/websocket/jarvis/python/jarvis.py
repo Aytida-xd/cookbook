@@ -87,9 +87,6 @@ class JarvisAssistant:
 
         async def send_audio():
             while self.running:
-                if self.stt.ws.closed:
-                    break
-
                 if self.jarvis_speaking:
                     self.stt.clear_queue()
                     await asyncio.sleep(0.05)

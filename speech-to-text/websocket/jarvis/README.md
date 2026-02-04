@@ -4,6 +4,10 @@ A background AI assistant powered by Smallest AI that can understand what's on y
 
 Say "Jarvis" followed by your question to get a spoken response. Mention "screenshot" in your query, and Jarvis will prompt you to capture part of your screen for visual context.
 
+## Demo
+
+[Watch Demo](./demo.mp4)
+
 ## Features
 
 - **Wake Word Activation**: Triggered by saying "Jarvis"
@@ -78,34 +82,6 @@ python python/jarvis.py
 5. **LLM Response**: Query + image context sent to Groq (Llama 3.3 70B)
 6. **TTS Playback**: Response spoken via Lightning TTS (HTTP POST)
 7. **Follow-up**: Stays in conversation mode for 60 seconds
-
-## Example
-
-```
-==================================================
-JARVIS VOICE ASSISTANT
-==================================================
-Wake word: "jarvis"
-Press Ctrl+C to exit.
---------------------------------------------------
-[LISTENING] Waiting for wake word...
-[STT] Jarvis take a screenshot and explain this code
-
-[WAKE] Detected! Listening...
-[CAPTURE] take a screenshot and explain this code
-
-[QUERY] take a screenshot and explain this code
-[LLM] Screenshot requested...
-[RESPONSE] This is a Python function that calculates fibonacci numbers...
-[LISTENING] Ready for follow-up...
-
-[STT] How can I optimize it
-[CAPTURE] how can i optimize it
-
-[QUERY] how can i optimize it
-[RESPONSE] You can optimize it using memoization or an iterative approach...
-[LISTENING] Ready for follow-up...
-```
 
 ## Project Structure
 
