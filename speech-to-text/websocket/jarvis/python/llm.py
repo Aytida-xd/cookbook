@@ -1,4 +1,17 @@
-"""Groq LLM client for Jarvis."""
+"""
+Groq LLM Client for Jarvis
+
+This module handles LLM interactions including:
+- Text-only queries using Llama 3.3 70B
+- Screenshot analysis using a two-step approach:
+  1. Vision model extracts text and describes the image
+  2. Text model generates the final response
+
+The two-step approach for vision ensures high-quality responses by leveraging
+the stronger text model for reasoning while using the vision model for perception.
+
+Further scope: Add tool calling for web search, calendar, smart home, etc.
+"""
 
 import base64
 import os
@@ -6,7 +19,7 @@ import platform
 import shutil
 import subprocess
 import tempfile
-import time
+
 from groq import Groq
 
 LLM_MODEL = "llama-3.3-70b-versatile"
@@ -123,7 +136,6 @@ class LLMClient:
 
     def _text_request(self, content: str) -> tuple[str, bool]:
         """Text-only LLM request."""
-        start = time.time()
         response = self.client.chat.completions.create(
             model=LLM_MODEL,
             messages=[
@@ -134,13 +146,11 @@ class LLMClient:
             temperature=0.7,
         )
         text = response.choices[0].message.content.strip()
-        print(f"[LLM] {(time.time() - start)*1000:.0f}ms")
         return self._parse_response(text)
 
     def _vision_request(self, query: str, image_b64: str) -> tuple[str, bool]:
         """Two-step: vision model extracts content, text model responds."""
         try:
-            start = time.time()
             vision_response = self.client.chat.completions.create(
                 model=LLM_VISION_MODEL,
                 messages=[{
@@ -154,9 +164,7 @@ class LLMClient:
                 temperature=0.3,
             )
             extraction = vision_response.choices[0].message.content.strip()
-            print(f"[Vision] {(time.time() - start)*1000:.0f}ms")
 
-            start = time.time()
             combined = f"Screenshot content:\n\n{extraction}\n\nUser's question: {query}"
             text_response = self.client.chat.completions.create(
                 model=LLM_MODEL,
@@ -168,7 +176,6 @@ class LLMClient:
                 temperature=0.7,
             )
             text = text_response.choices[0].message.content.strip()
-            print(f"[LLM] {(time.time() - start)*1000:.0f}ms")
             return self._parse_response(text)
 
         except Exception as e:

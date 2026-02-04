@@ -14,16 +14,12 @@ Say "Jarvis" followed by your question to get a spoken response. Mention "screen
 ## Pipeline
 
 ```
-Microphone → Pulse STT → Wake Word → [Screenshot?] → Vision + LLM → TTS → Speaker
+Microphone → Pulse STT (WebSocket) → Wake Word → [Screenshot?] → Vision + LLM → TTS (HTTP) → Speaker
 ```
 
 ## Requirements
 
-```bash
-pip install -r python/requirements.txt
-```
-
-**System dependencies:**
+System dependencies (install first):
 
 ```bash
 # Ubuntu/Debian
@@ -35,6 +31,27 @@ brew install portaudio
 
 ## Setup
 
+Install uv (if not already installed):
+
+```bash
+# macOS/Linux
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Or with Homebrew
+brew install uv
+```
+
+Create virtual environment and install dependencies:
+
+```bash
+cd speech-to-text/websocket/jarvis
+uv venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+uv pip install -r requirements.txt
+```
+
+Configure environment variables:
+
 ```bash
 cp .env.sample .env
 # Edit .env with your API keys
@@ -43,6 +60,8 @@ cp .env.sample .env
 ## Usage
 
 ```bash
+# Make sure you're in the python directory with venv activated
+source .venv/bin/activate  # if not already activated
 python python/jarvis.py
 ```
 
@@ -57,12 +76,18 @@ python python/jarvis.py
    - Press Enter or click to confirm
    - Vision model extracts text and describes the image
 5. **LLM Response**: Query + image context sent to Groq (Llama 3.3 70B)
-6. **TTS Playback**: Response spoken via Lightning TTS
-7. **Follow-up**: Stays in conversation mode for 60 seconds - you can ask follow-ups on the screenshot or previous responses
+6. **TTS Playback**: Response spoken via Lightning TTS (HTTP POST)
+7. **Follow-up**: Stays in conversation mode for 60 seconds
 
-## Screenshot Example
+## Example
 
 ```
+==================================================
+JARVIS VOICE ASSISTANT
+==================================================
+Wake word: "jarvis"
+Press Ctrl+C to exit.
+--------------------------------------------------
 [LISTENING] Waiting for wake word...
 [STT] Jarvis take a screenshot and explain this code
 
@@ -71,30 +96,29 @@ python python/jarvis.py
 
 [QUERY] take a screenshot and explain this code
 [LLM] Screenshot requested...
-[Vision] 1200ms
-[LLM] 450ms
-[RESPONSE] This is a Python function that calculates fibonacci numbers using recursion...
-[TTS] Connected
-...
+[RESPONSE] This is a Python function that calculates fibonacci numbers...
 [LISTENING] Ready for follow-up...
-[STT] How can I optimize it
 
+[STT] How can I optimize it
 [CAPTURE] how can i optimize it
 
 [QUERY] how can i optimize it
-[LLM] 380ms
-[RESPONSE] You can optimize it using memoization or convert it to an iterative approach...
+[RESPONSE] You can optimize it using memoization or an iterative approach...
+[LISTENING] Ready for follow-up...
 ```
 
 ## Project Structure
 
 ```
-python/
-├── jarvis.py        # Main assistant (wake word, state machine)
-├── stt.py           # Pulse STT WebSocket client
-├── llm.py           # Groq LLM + vision with screenshot support
-├── tts.py           # Lightning TTS WebSocket client
-└── requirements.txt
+speech-to-text/websocket/jarvis/
+├── .env.sample          # Environment variables template
+├── README.md
+└── python/
+    ├── jarvis.py        # Main assistant (wake word, state machine)
+    ├── stt.py           # Pulse STT WebSocket client + mic capture
+    ├── llm.py           # Groq LLM + vision with screenshot support
+    ├── tts.py           # Lightning TTS HTTP client
+    └── requirements.txt
 ```
 
 ## Configuration
@@ -106,10 +130,30 @@ python/
 | `jarvis.py` | `CONVERSATION_TIMEOUT` | `60.0` | Seconds before returning to wake word mode |
 | `tts.py` | `TTS_VOICE` | `"sophia"` | Lightning TTS voice ID |
 | `llm.py` | `LLM_MODEL` | `"llama-3.3-70b-versatile"` | Text model |
-| `llm.py` | `LLM_VISION_MODEL` | `"llama-4-scout-17b-16e"` | Vision model for screenshots |
+| `llm.py` | `LLM_VISION_MODEL` | `"meta-llama/llama-4-scout-17b-16e-instruct"` | Vision model for screenshots |
+
+## Further Scope
+
+This example is intentionally kept simple to serve as a starting point for building voice . Here are some ideas for extending it:
+
+### Tool Calling
+- **Web Search**: Integrate search APIs to answer questions about current events
+- **Calendar/Email**: Connect to productivity APIs for scheduling and messaging
+- **Smart Home**: Control IoT devices with voice commands
+- **Code Execution**: Run Python snippets for calculations or data analysis
+
+### TTS Streaming
+The TTS implementation uses HTTP POST intentionally, returning the complete audio before playback. For lower latency, you can upgrade to the [Lightning TTS WebSocket API](https://waves-docs.smallest.ai/content/api-references/lightning-v3.1-ws) which streams audio chunks as they're generated. This is left as an exercise to help developers understand the difference between batch and streaming approaches when building voice assistants.
+
+### Other Improvements
+- Add interrupt handling (stop speaking when user starts talking)
+- Implement wake word detection locally for privacy
+- Add multi-language support
+- Build a GUI with waveform visualization
 
 ## API References
 
-- [Pulse STT WebSocket](https://waves-docs.smallest.ai/content/api-references/pulse-asr)
-- [Lightning TTS](https://waves-docs.smallest.ai/content/api-references/lightning-tts)
+- [Pulse STT WebSocket](https://waves-docs.smallest.ai/content/api-references/pulse-stt-ws)
+- [Lightning TTS HTTP](https://waves-docs.smallest.ai/content/api-references/lightning-v3.1)
+- [Lightning TTS WebSocket](https://waves-docs.smallest.ai/content/api-references/lightning-v3.1-ws)
 - [Groq API](https://console.groq.com/docs/api-reference)
