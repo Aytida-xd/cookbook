@@ -6,6 +6,7 @@ import json
 import os
 import queue
 import threading
+import time as time_module
 
 import pyaudio
 import websockets
@@ -13,6 +14,7 @@ import websockets
 TTS_WS_URL = "wss://waves-api.smallest.ai/api/v1/lightning-v3.1/get_speech/stream"
 TTS_VOICE = "sophia"
 TTS_SAMPLE_RATE = 24000
+DEBUG_AUDIO_DIR = "debug_audio"
 
 
 class TTSWebSocket:
@@ -76,18 +78,28 @@ class TTSWebSocket:
         if not chunks:
             return
 
+        send_complete = asyncio.Event()
+
         async def send():
             for i, chunk in enumerate(chunks):
-                print(f"[TTS] {i+1}/{len(chunks)}: {chunk}")
                 await self.ws.send(json.dumps({
                     "text": chunk,
                     "voice_id": self.voice,
                     "sample_rate": self.sample_rate,
                     "speed": 1.0,
                 }))
+                print(f"[TTS] Sent {i+1}/{len(chunks)}: {chunk}")
                 await asyncio.sleep(0.05)
+            send_complete.set()
+
+        all_audio_bytes = []
 
         async def receive():
+            import time
+            first_audio = True
+            start_time = time.time()
+            audio_chunks = 0
+            
             while True:
                 try:
                     response = await asyncio.wait_for(self.ws.recv(), timeout=30.0)
@@ -99,11 +111,19 @@ class TTSWebSocket:
 
                     audio = data.get("data", {}).get("audio")
                     if audio:
-                        self.audio_queue.put(base64.b64decode(audio))
+                        if first_audio:
+                            print(f"[TTS] First audio: {(time.time() - start_time)*1000:.0f}ms")
+                            first_audio = False
+                        audio_chunks += 1
+                        decoded = base64.b64decode(audio)
+                        all_audio_bytes.append(decoded)
+                        self.audio_queue.put(decoded)
 
                     if data.get("status") == "complete":
-                        print("[TTS] Complete")
-                        break
+                        if not send_complete.is_set():
+                            print(f"[TTS] Warning: complete received before all chunks sent")
+                        print(f"[TTS] Complete ({audio_chunks} chunks, {(time.time() - start_time)*1000:.0f}ms)")
+                        # break
                 except asyncio.TimeoutError:
                     print("[TTS] Timeout")
                     break
@@ -112,6 +132,15 @@ class TTSWebSocket:
                     break
 
         await asyncio.gather(send(), receive())
+
+        # Save debug audio file
+        if all_audio_bytes:
+            os.makedirs(DEBUG_AUDIO_DIR, exist_ok=True)
+            timestamp = time_module.strftime("%Y%m%d_%H%M%S")
+            filepath = os.path.join(DEBUG_AUDIO_DIR, f"tts_{timestamp}.raw")
+            with open(filepath, "wb") as f:
+                f.write(b"".join(all_audio_bytes))
+            print(f"[TTS] Debug audio saved: {filepath}")
 
         while not self.audio_queue.empty():
             await asyncio.sleep(0.1)

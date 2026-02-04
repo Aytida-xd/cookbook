@@ -11,13 +11,19 @@ Usage: python jarvis.py
 """
 
 import asyncio
+import json
+import os
+import queue
 import re
+import threading
 import time
+from urllib.parse import urlencode
 
+import pyaudio
+import websockets
 from dotenv import load_dotenv
 
 from llm import LLMClient
-from stt import STTWebSocket
 from tts import TTSWebSocket, chunk_text
 
 load_dotenv()
@@ -25,6 +31,14 @@ load_dotenv()
 WAKE_WORD = "jarvis"
 SILENCE_TIMEOUT = 5.0
 CONVERSATION_TIMEOUT = 60.0
+
+STT_WS_URL = "wss://waves-api.smallest.ai/api/v1/pulse/get_text"
+STT_SAMPLE_RATE = 16000
+STT_LANGUAGE = "en"
+
+CHUNK_SIZE = 1600
+CHANNELS = 1
+FORMAT = pyaudio.paInt16
 
 
 class JarvisAssistant:
@@ -39,7 +53,6 @@ class JarvisAssistant:
 
     def __init__(self):
         self.llm = LLMClient()
-        self.stt = STTWebSocket()
 
         self.state = "LISTENING"
         self.query_buffer = []
@@ -51,6 +64,7 @@ class JarvisAssistant:
         self.jarvis_speaking = False
         self.silence_task = None
         self.timer_version = 0
+        self.audio_queue = queue.Queue()
 
     async def run(self):
         """Start the voice assistant main loop."""
@@ -64,51 +78,99 @@ class JarvisAssistant:
         print("-" * 50)
         print("[LISTENING] Waiting for wake word...")
 
+        threading.Thread(target=self._capture_audio, daemon=True).start()
+
         while self.running:
             try:
                 await self._stt_session()
+            except websockets.exceptions.ConnectionClosed:
+                print("[STT] Reconnecting...")
+                await asyncio.sleep(1)
             except Exception as e:
                 print(f"[STT] Reconnecting... ({e})")
                 await asyncio.sleep(1)
 
+    def _capture_audio(self):
+        """Capture microphone audio in a background thread."""
+        print("[Audio] Capture thread started")
+        p = pyaudio.PyAudio()
+        stream = p.open(
+            format=FORMAT,
+            channels=CHANNELS,
+            rate=STT_SAMPLE_RATE,
+            input=True,
+            frames_per_buffer=CHUNK_SIZE,
+        )
+
+        chunks = 0
+        while self.running:
+            try:
+                self.audio_queue.put(stream.read(CHUNK_SIZE, exception_on_overflow=False))
+                chunks += 1
+                if chunks % 500 == 0:
+                    print(f"[Audio] Captured {chunks} chunks, queue: {self.audio_queue.qsize()}")
+            except Exception as e:
+                print(f"[Audio Error] {e}")
+                break
+
+        print("[Audio] Capture thread stopped")
+        stream.stop_stream()
+        stream.close()
+        p.terminate()
+
     async def _stt_session(self):
         """Run STT session with send/receive loop."""
-        await self.stt.connect()
+        params = {"language": STT_LANGUAGE, "encoding": "linear16", "sample_rate": STT_SAMPLE_RATE}
+        url = f"{STT_WS_URL}?{urlencode(params)}"
 
-        async def send_audio():
-            while self.running:
-                if self.jarvis_speaking:
-                    self.stt.clear_queue()
-                    await asyncio.sleep(0.05)
-                    continue
+        api_key = os.environ.get("SMALLEST_API_KEY")
+        if not api_key:
+            raise ValueError("SMALLEST_API_KEY environment variable not set")
+        headers = {"Authorization": f"Bearer {api_key}"}
 
-                while not self.stt.audio_queue.empty():
-                    await self.stt.ws.send(self.stt.audio_queue.get_nowait())
+        start = time.time()
+        async with websockets.connect(url, additional_headers=headers, ping_interval=20) as ws:
+            print(f"[STT] Connected ({(time.time() - start)*1000:.0f}ms)")
+            await asyncio.gather(self._send_audio(ws), self._receive_transcripts(ws))
+
+    async def _send_audio(self, ws):
+        """Send audio chunks to STT WebSocket."""
+        chunks_sent = 0
+        while self.running:
+            if self.jarvis_speaking:
+                while not self.audio_queue.empty():
+                    self.audio_queue.get_nowait()
                 await asyncio.sleep(0.05)
+                continue
 
-        async def receive_transcripts():
-            async for message in self.stt.ws:
-                if not self.running:
-                    break
+            queue_size = self.audio_queue.qsize()
+            if queue_size > 0:
+                while not self.audio_queue.empty():
+                    await ws.send(self.audio_queue.get_nowait())
+                    chunks_sent += 1
+                if chunks_sent % 100 == 0:
+                    print(f"[DEBUG] Audio chunks sent: {chunks_sent}")
 
-                import json
-                result = json.loads(message)
-                transcript = result.get("transcript", "").strip()
+            await asyncio.sleep(0.05)
 
-                if not result.get("is_final") or not transcript:
-                    continue
+    async def _receive_transcripts(self, ws):
+        """Process incoming transcripts from STT."""
+        async for message in ws:
+            if not self.running:
+                break
 
-                print(f"[STT] {transcript}")
+            result = json.loads(message)
+            transcript = result.get("transcript", "").strip()
 
-                if self.state == "LISTENING":
-                    self._handle_wake_word(transcript)
-                elif self.state == "CAPTURING":
-                    self._handle_capture(transcript)
+            if not result.get("is_final") or not transcript:
+                continue
 
-        try:
-            await asyncio.gather(send_audio(), receive_transcripts())
-        finally:
-            await self.stt.close()
+            print(f"[STT] {transcript}")
+
+            if self.state == "LISTENING":
+                self._handle_wake_word(transcript)
+            elif self.state == "CAPTURING":
+                self._handle_capture(transcript)
 
     def _handle_wake_word(self, transcript: str):
         """Check for wake word and transition to CAPTURING state."""
@@ -174,6 +236,8 @@ class JarvisAssistant:
 
     async def _process_query(self):
         """Send query to LLM and speak response via TTS."""
+        total_start = time.time()
+
         query = " ".join(self.query_buffer).strip()
         self.query_buffer = []
 
@@ -189,10 +253,12 @@ class JarvisAssistant:
         print(f"\n[QUERY] {query}")
         self.jarvis_speaking = True
 
+        llm_start = time.time()
         response, is_stop = self.llm.get_response(query, self.conversation_history)
+        llm_time = (time.time() - llm_start) * 1000
 
         if is_stop:
-            print("[STOP] Ignoring unrelated speech")
+            print(f"[STOP] Ignoring unrelated speech (LLM: {llm_time:.0f}ms)")
             self.jarvis_speaking = False
             self.state = "CAPTURING"
             self.last_transcript_time = time.time()
@@ -200,15 +266,32 @@ class JarvisAssistant:
             return
 
         print(f"[RESPONSE] {response}")
+        print(f"[DEBUG] LLM total: {llm_time:.0f}ms")
 
+        tts_start = time.time()
         tts = TTSWebSocket()
         try:
+            connect_start = time.time()
             await tts.connect()
-            await tts.speak_all(chunk_text(response, n=10))
+            print(f"[DEBUG] TTS connect: {(time.time() - connect_start)*1000:.0f}ms")
+
+            speak_start = time.time()
+            chunks = chunk_text(response, n=10)
+            print(f"[DEBUG] TTS chunks: {len(chunks)}")
+            await tts.speak_all(chunks)
+            print(f"[DEBUG] TTS speak: {(time.time() - speak_start)*1000:.0f}ms")
         finally:
             await tts.close()
-            self.stt.clear_queue()
+            while not self.audio_queue.empty():
+                self.audio_queue.get_nowait()
             self.jarvis_speaking = False
+            print(f"[DEBUG] Resumed listening, queue size: {self.audio_queue.qsize()}")
+
+        tts_time = (time.time() - tts_start) * 1000
+        total_time = (time.time() - total_start) * 1000
+
+        print(f"[DEBUG] TTS total: {tts_time:.0f}ms")
+        print(f"[DEBUG] Total response time: {total_time:.0f}ms")
 
         self.conversation_history.append({"role": "user", "content": query})
         self.conversation_history.append({"role": "assistant", "content": response})
