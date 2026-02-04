@@ -11,19 +11,13 @@ Usage: python jarvis.py
 """
 
 import asyncio
-import json
-import os
-import queue
 import re
-import threading
 import time
-from urllib.parse import urlencode
 
-import pyaudio
-import websockets
 from dotenv import load_dotenv
 
 from llm import LLMClient
+from stt import STTWebSocket
 from tts import TTSWebSocket, chunk_text
 
 load_dotenv()
@@ -31,14 +25,6 @@ load_dotenv()
 WAKE_WORD = "jarvis"
 SILENCE_TIMEOUT = 5.0
 CONVERSATION_TIMEOUT = 60.0
-
-STT_WS_URL = "wss://waves-api.smallest.ai/api/v1/pulse/get_text"
-STT_SAMPLE_RATE = 16000
-STT_LANGUAGE = "en"
-
-CHUNK_SIZE = 1600
-CHANNELS = 1
-FORMAT = pyaudio.paInt16
 
 
 class JarvisAssistant:
@@ -52,11 +38,8 @@ class JarvisAssistant:
     """
 
     def __init__(self):
-        self.api_key = os.environ.get("SMALLEST_API_KEY")
-        if not self.api_key:
-            raise ValueError("SMALLEST_API_KEY environment variable not set")
-        
         self.llm = LLMClient()
+        self.stt = STTWebSocket()
 
         self.state = "LISTENING"
         self.query_buffer = []
@@ -68,9 +51,9 @@ class JarvisAssistant:
         self.jarvis_speaking = False
         self.silence_task = None
         self.timer_version = 0
-        self.audio_queue = queue.Queue()
 
     async def run(self):
+        """Start the voice assistant main loop."""
         self.running = True
 
         print("=" * 50)
@@ -81,81 +64,51 @@ class JarvisAssistant:
         print("-" * 50)
         print("[LISTENING] Waiting for wake word...")
 
-        threading.Thread(target=self._capture_audio, daemon=True).start()
-
         while self.running:
             try:
                 await self._stt_session()
-            except websockets.exceptions.ConnectionClosed:
-                print("[STT] Reconnecting...")
-                await asyncio.sleep(1)
             except Exception as e:
-                print(f"[Error] {e}")
+                print(f"[STT] Reconnecting... ({e})")
                 await asyncio.sleep(1)
-
-    def _capture_audio(self):
-        """Capture microphone audio in a background thread."""
-        p = pyaudio.PyAudio()
-        stream = p.open(
-            format=FORMAT,
-            channels=CHANNELS,
-            rate=STT_SAMPLE_RATE,
-            input=True,
-            frames_per_buffer=CHUNK_SIZE,
-        )
-
-        while self.running:
-            try:
-                self.audio_queue.put(stream.read(CHUNK_SIZE, exception_on_overflow=False))
-            except Exception as e:
-                print(f"[Audio Error] {e}")
-                break
-
-        stream.stop_stream()
-        stream.close()
-        p.terminate()
 
     async def _stt_session(self):
-        """Establish STT WebSocket connection and handle audio streaming."""
-        params = {"language": STT_LANGUAGE, "encoding": "linear16", "sample_rate": STT_SAMPLE_RATE}
-        url = f"{STT_WS_URL}?{urlencode(params)}"
-        headers = {"Authorization": f"Bearer {self.api_key}"}
+        """Run STT session with send/receive loop."""
+        await self.stt.connect()
 
-        async with websockets.connect(url, additional_headers=headers, ping_interval=20) as ws:
-            print("[STT] Connected")
-            await asyncio.gather(self._send_audio(ws), self._receive_transcripts(ws))
+        async def send_audio():
+            while self.running:
+                if self.jarvis_speaking:
+                    self.stt.clear_queue()
+                    await asyncio.sleep(0.05)
+                    continue
 
-    async def _send_audio(self, ws):
-        """Send audio chunks to STT WebSocket. Pauses while Jarvis is speaking."""
-        while self.running:
-            if self.jarvis_speaking:
-                while not self.audio_queue.empty():
-                    self.audio_queue.get_nowait()
+                while not self.stt.audio_queue.empty():
+                    await self.stt.ws.send(self.stt.audio_queue.get_nowait())
                 await asyncio.sleep(0.05)
-                continue
 
-            while not self.audio_queue.empty():
-                await ws.send(self.audio_queue.get_nowait())
-            await asyncio.sleep(0.05)
+        async def receive_transcripts():
+            async for message in self.stt.ws:
+                if not self.running:
+                    break
 
-    async def _receive_transcripts(self, ws):
-        """Process incoming transcripts from STT WebSocket."""
-        async for message in ws:
-            if not self.running:
-                break
+                import json
+                result = json.loads(message)
+                transcript = result.get("transcript", "").strip()
 
-            result = json.loads(message)
-            transcript = result.get("transcript", "").strip()
+                if not result.get("is_final") or not transcript:
+                    continue
 
-            if not result.get("is_final") or not transcript:
-                continue
+                print(f"[STT] {transcript}")
 
-            print(f"[STT] {transcript}")
+                if self.state == "LISTENING":
+                    self._handle_wake_word(transcript)
+                elif self.state == "CAPTURING":
+                    self._handle_capture(transcript)
 
-            if self.state == "LISTENING":
-                self._handle_wake_word(transcript)
-            elif self.state == "CAPTURING":
-                self._handle_capture(transcript)
+        try:
+            await asyncio.gather(send_audio(), receive_transcripts())
+        finally:
+            await self.stt.close()
 
     def _handle_wake_word(self, transcript: str):
         """Check for wake word and transition to CAPTURING state."""
@@ -196,11 +149,7 @@ class JarvisAssistant:
         self.silence_task = asyncio.create_task(self._silence_check(my_version))
 
     async def _silence_check(self, my_version: int):
-        """
-        Wait for silence timeout, then process query if no new speech detected.
-        
-        Uses timer_version to handle race conditions when timer is restarted.
-        """
+        """Wait for silence timeout, then process query if no new speech detected."""
         try:
             await asyncio.sleep(SILENCE_TIMEOUT)
 
@@ -258,8 +207,7 @@ class JarvisAssistant:
             await tts.speak_all(chunk_text(response, n=10))
         finally:
             await tts.close()
-            while not self.audio_queue.empty():
-                self.audio_queue.get_nowait()
+            self.stt.clear_queue()
             self.jarvis_speaking = False
 
         self.conversation_history.append({"role": "user", "content": query})

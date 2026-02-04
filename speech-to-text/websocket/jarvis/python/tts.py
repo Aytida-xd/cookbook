@@ -85,6 +85,7 @@ class TTSWebSocket:
                     "sample_rate": self.sample_rate,
                     "speed": 1.0,
                 }))
+                await asyncio.sleep(0.05)
 
         async def receive():
             while True:
