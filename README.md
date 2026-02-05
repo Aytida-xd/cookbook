@@ -58,6 +58,7 @@ Convert audio and video to text with industry-leading accuracy. Supports 30+ lan
 |---------|-------------|
 | [Streaming Transcription](./speech-to-text/websocket/streaming-text-output-transcription/) | Stream audio files via WebSocket |
 | [Realtime Microphone](./speech-to-text/websocket/realtime-microphone-transcription/) | Gradio web UI with live microphone input |
+| [Jarvis Voice Assistant](./speech-to-text/websocket/jarvis/) | Always-on assistant with wake word, LLM, and TTS |
 
 ---
 
