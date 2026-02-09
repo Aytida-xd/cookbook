@@ -23,51 +23,29 @@ Microphone → Pulse STT (WebSocket) → Wake Word → [Screenshot?] → Vision 
 
 ## Requirements
 
-System dependencies (install first):
+> Base dependencies are installed via the root `requirements.txt`. See the [main README](../../../README.md#usage) for setup.
+
+Add `SMALLEST_API_KEY` and `GROQ_API_KEY` to your `.env`.
+
+Extra dependencies:
 
 ```bash
-# Ubuntu/Debian
-sudo apt install portaudio19-dev flameshot
-
-# macOS
-brew install portaudio
-```
-
-## Setup
-
-Install uv (if not already installed):
-
-```bash
-# macOS/Linux
-curl -LsSf https://astral.sh/uv/install.sh | sh
-
-# Or with Homebrew
-brew install uv
-```
-
-Create virtual environment and install dependencies:
-
-```bash
-cd speech-to-text/websocket/jarvis
-uv venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 uv pip install -r requirements.txt
 ```
 
-Configure environment variables:
-
-```bash
-cp .env.sample .env
-# Edit .env with your API keys
-```
+This installs `pyaudio` and `httpx` (groq is already in the root install).
 
 ## Usage
 
 ```bash
-# Make sure you're in the python directory with venv activated
-source .venv/bin/activate  # if not already activated
-python python/jarvis.py
+uv run jarvis.py
 ```
+
+## Recommended Usage
+
+- Starting point for building always-on voice assistants with wake word detection, vision, and speech output
+- Local desktop assistant combining STT, LLM, and TTS
+- For deployed telephony agents, the [Voice Agents](../../../voice-agents/) examples are recommended
 
 ## How It Works
 
@@ -89,12 +67,11 @@ python python/jarvis.py
 speech-to-text/websocket/jarvis/
 ├── .env.sample          # Environment variables template
 ├── README.md
-└── python/
-    ├── jarvis.py        # Main assistant (wake word, state machine)
-    ├── stt.py           # Pulse STT WebSocket client + mic capture
-    ├── llm.py           # Groq LLM + vision with screenshot support
-    ├── tts.py           # Lightning TTS HTTP client
-    └── requirements.txt
+├── jarvis.py        # Main assistant (wake word, state machine)
+├── stt.py           # Pulse STT WebSocket client + mic capture
+├── llm.py           # Groq LLM + vision with screenshot support
+├── tts.py           # Lightning TTS HTTP client
+└── requirements.txt
 ```
 
 ## Configuration
@@ -110,7 +87,7 @@ speech-to-text/websocket/jarvis/
 
 ## Further Scope
 
-This example is intentionally kept simple to serve as a starting point for building voice . Here are some ideas for extending it:
+This example is intentionally kept simple to serve as a starting point for building voice assistants. Here are some ideas for extending it:
 
 ### Tool Calling
 - **Web Search**: Integrate search APIs to answer questions about current events
@@ -127,9 +104,14 @@ The TTS implementation uses HTTP POST intentionally, returning the complete audi
 - Add multi-language support
 - Build a GUI with waveform visualization
 
-## API References
+## API Reference
 
 - [Pulse STT WebSocket](https://waves-docs.smallest.ai/content/api-references/pulse-stt-ws)
 - [Lightning TTS HTTP](https://waves-docs.smallest.ai/content/api-references/lightning-v3.1)
 - [Lightning TTS WebSocket](https://waves-docs.smallest.ai/content/api-references/lightning-v3.1-ws)
 - [Groq API](https://console.groq.com/docs/api-reference)
+
+## Next Steps
+
+- [Voice Agents](../../../voice-agents/) — Build deployed telephony agents with the Atoms SDK
+- [Realtime Microphone](../realtime-microphone-transcription/) — Simpler Gradio UI for live transcription

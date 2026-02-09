@@ -1,0 +1,8 @@
+# Extra dependencies for Jarvis (beyond root requirements.txt)
+pyaudio==0.2.14
+httpx==0.28.1
+
+# System dependencies (install first):
+# On Ubuntu/Debian: sudo apt install portaudio19-dev flameshot
+# On macOS: brew install portaudio
+# On Windows: pip install pipwin && pipwin install pyaudio

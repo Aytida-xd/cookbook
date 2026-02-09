@@ -1,100 +1,120 @@
-# Smallest AI Cookbook 📚
+![Smallest AI](assets/smallest-banner.png)
 
-Welcome to the official Smallest AI Cookbook! This repository contains practical examples and tutorials to help you build with Smallest AI's APIs.
+<div align="center">
+  <a href="https://twitter.com/smallest_AI">
+    <img src="https://img.shields.io/twitter/url/https/twitter.com/smallest_AI.svg?style=social&label=Follow%20smallest_AI" alt="Twitter">
+  </a>
+  <a href="https://discord.gg/ywShEyXHBW">
+    <img src="https://img.shields.io/discord/1212257329559642112?style=flat&logo=discord&logoColor=white&label=Discord&color=5865F2" alt="Discord">
+  </a>
+  <a href="https://www.linkedin.com/company/smallest">
+    <img src="https://img.shields.io/badge/LinkedIn-Connect-blue" alt="LinkedIn">
+  </a>
+  <a href="https://www.youtube.com/@smallest_ai">
+    <img src="https://img.shields.io/static/v1?message=smallest_ai&logo=youtube&label=&color=FF0000&logoColor=white&labelColor=&style=for-the-badge" height=20 alt="YouTube">
+  </a>
+</div>
+
+# Smallest AI Cookbook
+
+Practical examples and tutorials for building with Smallest AI's APIs. Each example is self-contained and demonstrates a real-world use case.
 
 **For comprehensive documentation, visit [smallest.ai/docs](https://waves-docs.smallest.ai).**
 
 ---
 
-## What's Inside
+## Usage
 
-This cookbook is organized into focused modules, each demonstrating real-world use cases:
+### Prerequisites
 
-| Module | Description | Powered By |
-|--------|-------------|------------|
-| [Speech-to-Text](./speech-to-text/) | Transcription, subtitles, streaming, and more | [Pulse STT](https://waves-docs.smallest.ai/v4.0.0/content/speech-to-text-new/overview) |
-| [Voice Agents](./voice-agents/) | Voice AI agents with function calling | [Atoms SDK](https://waves-docs.smallest.ai) |
+- [uv](https://docs.astral.sh/uv/) (Python package manager)
+- Python >= 3.10 (install via `uv python install 3.13` if needed)
+- A Smallest AI API key — get one at [smallest.ai/console](https://smallest.ai/console)
 
----
-
-## Getting Started
-
-**You'll need:**
-
-1. A Smallest AI account
-2. An API key — get one at [smallest.ai/console](https://smallest.ai/console)
-
-**Setup:**
+### Step 1: Create env + install base deps
 
 ```bash
-# Each example includes a .env.sample file
+uv venv
+uv pip install -r requirements.txt
+```
+
+This installs common dependencies (`requests`, `websockets`, `python-dotenv`, `smallestai`, `openai`, `groq`, `loguru`, `streamlit`, `gradio`) shared across examples.
+
+### Step 2: Run an example
+
+```bash
+# Set your API key
+export SMALLEST_API_KEY="your-api-key-here"
+
+# Run any example directly
+uv run speech-to-text/getting-started/python/transcribe.py recording.wav
+```
+
+Some examples require extra dependencies. Install them first:
+
+```bash
+uv pip install -r speech-to-text/websocket/jarvis/requirements.txt
+uv run speech-to-text/websocket/jarvis/jarvis.py
+```
+
+Later, for another example:
+
+```bash
+uv pip install -r speech-to-text/youtube-summarizer/requirements.txt
+uv run speech-to-text/youtube-summarizer/app.py
+```
+
+### Step 3: Set up API keys
+
+Each example includes a `.env.sample` file. Copy it and add your keys:
+
+```bash
 cd speech-to-text/getting-started
 cp .env.sample .env
 # Edit .env with your API keys
-
-# Or export directly
-export SMALLEST_API_KEY="your-api-key-here"
-# any other api keys the example needs
 ```
+
+Or export directly:
+
+```bash
+export SMALLEST_API_KEY="your-api-key-here"
+```
+
+**API keys used across examples:**
+
+| Key | Where to get it | Used by |
+|-----|-----------------|---------|
+| `SMALLEST_API_KEY` | [smallest.ai/console](https://smallest.ai/console) | All examples |
+| `OPENAI_API_KEY` | [platform.openai.com](https://platform.openai.com/api-keys) | Podcast Summarizer, Meeting Notes, Voice Agents |
+| `GROQ_API_KEY` | [console.groq.com](https://console.groq.com) | YouTube Summarizer, Jarvis |
+| `RECALL_API_KEY` | [recall.ai](https://recall.ai) | Meeting Notes |
 
 ---
 
 ## Speech-to-Text Examples
 
-Convert audio and video to text with industry-leading accuracy. Supports 30+ languages.
+Convert audio and video to text with industry-leading accuracy. Supports 30+ languages. Powered by [Pulse STT](https://waves-docs.smallest.ai/v4.0.0/content/speech-to-text-new/overview).
 
 | Example | Description |
 |---------|-------------|
 | [Getting Started](./speech-to-text/getting-started/) | Basic transcription — the simplest way to start |
-| [Word-Level Outputs](./speech-to-text/word-level-outputs/) | Word timestamps and speaker diarization |
-| [Subtitle Generation](./speech-to-text/subtitle-generation/) | Generate SRT/VTT subtitles from audio or video |
-| [Meeting Notes](./speech-to-text/meeting-notes/) | Join meetings via Recall.ai, meeting notes with auto-identification of speakers by name |
-| [Podcast Summarizer](./speech-to-text/podcast-summarizer/) | Transcribe and summarize with GPT-5 |
-| [File Transcription](./speech-to-text/file-transcription/) | All advanced features (emotions, age, gender, PII redaction) |
-
-### WebSocket / Streaming
-
-| Example | Description |
-|---------|-------------|
-| [Streaming Transcription](./speech-to-text/websocket/streaming-text-output-transcription/) | Stream audio files via WebSocket |
-| [Realtime Microphone](./speech-to-text/websocket/realtime-microphone-transcription/) | Gradio web UI with live microphone input |
+| [Meeting Notes](./speech-to-text/online-meeting-notetaking-bot/) | Join meetings via Recall.ai, auto-identify speakers by name |
 | [Jarvis Voice Assistant](./speech-to-text/websocket/jarvis/) | Always-on assistant with wake word, LLM, and TTS |
+
+**[See all 10 Speech-to-Text examples &rarr;](./speech-to-text/)**
 
 ---
 
 ## Voice Agents Examples
 
-Build voice AI agents with the Atoms SDK.
-
-### Basics
+Build voice AI agents with the [Atoms SDK](https://atoms-docs.smallest.ai/dev).
 
 | Example | What You'll Learn |
 |---------|-------------------|
 | [Getting Started](./voice-agents/getting_started/) | `OutputAgentNode`, `generate_response()`, `AtomsApp` |
 | [Agent with Tools](./voice-agents/agent_with_tools/) | `@function_tool`, `ToolRegistry`, tool execution |
-| [Call Control](./voice-agents/call_control/) | `SDKAgentEndCallEvent`, cold/warm transfers |
 
-### Multi-Node Patterns
-
-| Example | What You'll Learn |
-|---------|-------------------|
-| [Background Agent](./voice-agents/background_agent/) | `BackgroundAgentNode`, parallel nodes, cross-node state |
-| [Language Switching](./voice-agents/language_switching/) | `add_edge()`, custom nodes, event pipelines |
-
-### Call Handling
-
-| Example | What You'll Learn |
-|---------|-------------------|
-| [Inbound IVR](./voice-agents/inbound_ivr/) | Intent routing, department transfers, mute/unmute |
-| [Interrupt Control](./voice-agents/interrupt_control/) | Mute/unmute events, blocking interruptions |
-
-### Platform Features
-
-| Example | What You'll Learn |
-|---------|-------------------|
-| [Knowledge Base RAG](./voice-agents/knowledge_base_rag/) | KB creation, PDF upload, URL scraping |
-| [Campaigns](./voice-agents/campaigns/) | Audiences, outbound campaigns |
-| [Analytics](./voice-agents/analytics/) | Call logs, transcripts, post-call metrics |
+**[See all 10 Voice Agents examples &rarr;](./voice-agents/)**
 
 ---
 
@@ -107,12 +127,13 @@ Each example includes implementations in:
 
 ## Contributing
 
-Contributions are welcome! If you'd like to add a new example:
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines. In short:
 
 1. Create a folder with a descriptive name
 2. Add implementations in `python/` and/or `javascript/` subdirectories
-3. Include a `README.md` explaining what it does and how to run it
-4. Update this root README with your new example
+3. Include a `README.md` and `.env.sample`
+4. If the example needs deps beyond the root `requirements.txt`, add a local `requirements.txt`
+5. Update this root README with your new example
 
 ---
 
@@ -120,8 +141,3 @@ Contributions are welcome! If you'd like to add a new example:
 
 - [Discord Community](https://discord.gg/5evETqguJs)
 - [Contact Support](https://smallest.ai/contact)
-
----
-
-Thank you for building with Smallest AI! We're excited to see what you create. 🚀
-

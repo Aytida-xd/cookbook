@@ -2,21 +2,75 @@
 
 IVR-style agent with intent routing, department transfers, and mute/unmute control.
 
-## Overview
+## Features
 
-This example demonstrates:
-- **Intent Detection** - Understanding caller needs
-- **Department Routing** - Transfers to appropriate teams
-- **Cold vs Warm Transfer** - Simple routing vs briefed handoff
-- **Mute/Unmute** - Controlling caller's microphone
-- **IVR Design Patterns** - Quick, professional call handling
+- **Intent Detection** — Understanding caller needs
+- **Department Routing** — Transfers to appropriate teams
+- **Cold vs Warm Transfer** — Simple routing vs briefed handoff
+- **Mute/Unmute** — Controlling caller's microphone
+- **IVR Design Patterns** — Quick, professional call handling
 
-## Files
+## Demo
 
-- `app.py` - Server entry point with greeting
-- `ivr_agent.py` - IVR agent with routing logic
+### Simple Routing
+```
+Agent: Thank you for calling TechCorp. I can help you reach Sales, Support, 
+       Billing, or Returns. How may I direct your call?
+User: I need to talk to someone about my bill.
+Agent: I'll connect you to our Billing department. Is that correct?
+User: Yes, please.
+Agent: Transferring you now. Please hold.
+[Cold transfer to Billing]
+```
 
-## Key Concepts
+### Complex Issue (Warm Transfer)
+```
+Agent: How may I direct your call?
+User: I've been having issues with my account for weeks and nobody can help.
+Agent: I understand this has been frustrating. Let me connect you with a senior 
+       support specialist who can resolve this. I'll brief them on your situation 
+       first. Please hold.
+[Warm transfer with context: "Recurring account issue, customer frustrated"]
+```
+
+### Intent Clarification
+```
+Agent: How may I direct your call?
+User: I need help with something.
+Agent: I'd be happy to help. Could you tell me more about what you need?
+       Are you looking to make a purchase, get technical support, 
+       discuss billing, or process a return?
+User: My product isn't working right.
+Agent: I'll connect you with our Technical Support team. They're available 24/7.
+```
+
+## Requirements
+
+> Base dependencies are installed via the root `requirements.txt`. See the [main README](../../README.md#usage) for setup. Add `OPENAI_API_KEY` to your `.env`.
+
+Configure department phone numbers in `ivr_agent.py`.
+
+## Usage
+
+Start the server:
+
+```bash
+uv run app.py
+```
+
+Connect with the CLI:
+
+```bash
+smallestai agent chat
+```
+
+## Recommended Usage
+
+- Automated receptionist that routes callers to the right department
+- Intent detection with cold and warm transfer patterns
+- For sentiment-based escalation, [Background Agent](../background_agent/) is recommended
+
+## Key Snippets
 
 ### Department Configuration
 
@@ -90,83 +144,37 @@ async def unmute_caller(self):
     await self.send_event(SDKAgentControlUnmuteUserEvent())
 ```
 
-## Setup
-
-1. Install dependencies:
-```bash
-pip install smallestai python-dotenv loguru
-```
-
-2. Create `.env` file:
-```bash
-OPENAI_API_KEY=your_openai_key
-```
-
-3. Configure department phone numbers in `ivr_agent.py`
-
-## Running the Example
-
-Start the server:
-```bash
-python app.py
-```
-
-Connect with the CLI:
-```bash
-smallestai agent chat
-```
-
-## Example Interactions
-
-### Simple Routing
-```
-Agent: Thank you for calling TechCorp. I can help you reach Sales, Support, 
-       Billing, or Returns. How may I direct your call?
-User: I need to talk to someone about my bill.
-Agent: I'll connect you to our Billing department. Is that correct?
-User: Yes, please.
-Agent: Transferring you now. Please hold.
-[Cold transfer to Billing]
-```
-
-### Complex Issue (Warm Transfer)
-```
-Agent: How may I direct your call?
-User: I've been having issues with my account for weeks and nobody can help.
-Agent: I understand this has been frustrating. Let me connect you with a senior 
-       support specialist who can resolve this. I'll brief them on your situation 
-       first. Please hold.
-[Warm transfer with context: "Recurring account issue, customer frustrated"]
-```
-
-### Intent Clarification
-```
-Agent: How may I direct your call?
-User: I need help with something.
-Agent: I'd be happy to help. Could you tell me more about what you need?
-       Are you looking to make a purchase, get technical support, 
-       discuss billing, or process a return?
-User: My product isn't working right.
-Agent: I'll connect you with our Technical Support team. They're available 24/7.
-```
-
 ## Hold Music Options
 
-Available hold music styles:
-- `"ringtone"` - Standard phone ringing
-- `"relaxing_sound"` - Calm ambient music
-- `"uplifting_beats"` - Energetic hold music
-- `"none"` - Silence
+| Option | Description |
+|--------|-------------|
+| `"ringtone"` | Standard phone ringing |
+| `"relaxing_sound"` | Calm ambient music |
+| `"uplifting_beats"` | Energetic hold music |
+| `"none"` | Silence |
 
 ## Best Practices
 
-1. **Be Concise** - IVR interactions should be quick
-2. **Confirm Before Transfer** - Always verify the department
-3. **Use Warm Transfer for Complex Issues** - Provide context
-4. **Offer Alternatives** - If a department is closed
-5. **Track Intents** - Log routing for analytics
+1. **Be Concise** — IVR interactions should be quick
+2. **Confirm Before Transfer** — Always verify the department
+3. **Use Warm Transfer for Complex Issues** — Provide context
+4. **Offer Alternatives** — If a department is closed
+5. **Track Intents** — Log routing for analytics
+
+## Structure
+
+```
+inbound_ivr/
+├── app.py         # Server entry point with greeting
+└── ivr_agent.py   # IVR agent with routing logic
+```
+
+## API Reference
+
+- [Call Control](https://atoms-docs.smallest.ai/dev/build/phone-calling/call-control)
+- [Core Concepts — Events](https://atoms-docs.smallest.ai/dev/introduction/core-concepts/events)
 
 ## Next Steps
 
-- See [Call Control](../call_control) for more transfer patterns
-- See [Background Agent](../background_agent) for sentiment-based routing
+- [Call Control](../call_control/) — More transfer patterns
+- [Background Agent](../background_agent/) — Sentiment-based routing

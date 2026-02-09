@@ -1,6 +1,6 @@
 # Voice Agents Cookbook
 
-Build AI voice agents with the Atoms SDK.
+Build AI voice agents with the [Atoms SDK](https://atoms-docs.smallest.ai/dev).
 
 ## Basics
 
@@ -34,12 +34,14 @@ Build AI voice agents with the Atoms SDK.
 
 ## Quick Start
 
+> **Prerequisites:** Make sure you've run `uv venv && uv pip install -r requirements.txt` at the repo root. See the [main README](../README.md#usage) for full setup.
+
 ```bash
-pip install smallestai python-dotenv loguru
 export SMALLEST_API_KEY=your_key
 export OPENAI_API_KEY=your_openai_key
 
-cd getting_started && python app.py
+cd voice-agents/getting_started
+uv run app.py
 ```
 
 Connect:
@@ -49,7 +51,7 @@ smallestai agent chat
 
 ## Requirements
 
-- Python 3.9+
-- `smallestai` SDK
+- Python 3.10+
+- `smallestai` SDK (installed via root `requirements.txt`)
 - OpenAI API key (for LLM)
 - Smallest API key (for platform features)

@@ -1,0 +1,2 @@
+# Extra dependencies for Knowledge Base RAG (beyond root requirements.txt)
+reportlab

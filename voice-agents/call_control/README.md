@@ -2,62 +2,14 @@
 
 Comprehensive call control: end calls, cold transfers, and warm transfers.
 
-## Overview
+## Features
 
-This example demonstrates:
-- **SDKAgentEndCallEvent** - End calls gracefully
-- **Cold Transfer** - Immediate handoff to another agent
-- **Warm Transfer** - Brief the receiving agent before handoff
-- **Hold Music Options** - Different music styles while transferring
+- **SDKAgentEndCallEvent** — End calls gracefully
+- **Cold Transfer** — Immediate handoff to another agent
+- **Warm Transfer** — Brief the receiving agent before handoff
+- **Hold Music Options** — Different music styles while transferring
 
-## Files
-
-- `app.py` - Server entry point with transfer number configuration
-- `support_agent.py` - Agent with all call control tools
-- `pyproject.toml` - Project dependencies
-
-## Tools Included
-
-| Tool | Description | When to Use |
-|------|-------------|-------------|
-| `end_call` | End the call gracefully | User says "goodbye" |
-| `cold_transfer` | Immediate transfer | User asks for "human" |
-| `warm_transfer` | Brief supervisor first | User asks for "manager" |
-| `lookup_order` | Look up order status | Business logic example |
-
-## Setup
-
-1. Install dependencies:
-```bash
-pip install smallestai python-dotenv loguru
-```
-
-2. Create `.env` file:
-```bash
-OPENAI_API_KEY=your_openai_key
-```
-
-3. Configure transfer numbers in `app.py`:
-```python
-agent = SupportAgent(
-    cold_transfer_number="+1234567890",   # General support
-    warm_transfer_number="+1987654321"    # Supervisor
-)
-```
-
-## Running the Example
-
-Start the server:
-```bash
-python app.py
-```
-
-Connect with the CLI:
-```bash
-smallestai agent chat
-```
-
-## Example Interactions
+## Demo
 
 **End Call**:
 ```
@@ -81,7 +33,39 @@ Assistant: I'll brief my supervisor and connect you right away.
 [User hears uplifting music, then connects to supervisor]
 ```
 
-## Key Code
+## Requirements
+
+> Base dependencies are installed via the root `requirements.txt`. See the [main README](../../README.md#usage) for setup. Add `OPENAI_API_KEY` to your `.env`.
+
+Configure transfer numbers in `app.py`:
+```python
+agent = SupportAgent(
+    cold_transfer_number="+1234567890",   # General support
+    warm_transfer_number="+1987654321"    # Supervisor
+)
+```
+
+## Usage
+
+Start the server:
+
+```bash
+uv run app.py
+```
+
+Connect with the CLI:
+
+```bash
+smallestai agent chat
+```
+
+## Recommended Usage
+
+- Agents that need to end calls gracefully or transfer callers to human agents
+- Cold and warm transfer patterns for support escalation
+- For IVR-style department routing, [Inbound IVR](../inbound_ivr/) is recommended
+
+## Key Snippets
 
 ### End Call
 
@@ -154,7 +138,29 @@ async def warm_transfer(self, reason: str) -> None:
 | `"uplifting_beats"` | Energetic, positive music |
 | `"none"` | Silence |
 
+## Tools Included
+
+| Tool | Description | When to Use |
+|------|-------------|-------------|
+| `end_call` | End the call gracefully | User says "goodbye" |
+| `cold_transfer` | Immediate transfer | User asks for "human" |
+| `warm_transfer` | Brief supervisor first | User asks for "manager" |
+| `lookup_order` | Look up order status | Business logic example |
+
+## Structure
+
+```
+call_control/
+├── app.py            # Server entry point with transfer number config
+└── support_agent.py  # Agent with all call control tools
+```
+
+## API Reference
+
+- [Call Control](https://atoms-docs.smallest.ai/dev/build/phone-calling/call-control)
+- [Core Concepts — Events](https://atoms-docs.smallest.ai/dev/introduction/core-concepts/events)
+
 ## Next Steps
 
-- See [Agent with Tools](../agent_with_tools) for custom business tools
-- See [Getting Started](../getting_started) for basic agent setup
+- [Agent with Tools](../agent_with_tools/) — Custom business tools
+- [Getting Started](../getting_started/) — Basic agent setup

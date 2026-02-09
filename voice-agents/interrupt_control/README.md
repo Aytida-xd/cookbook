@@ -2,16 +2,37 @@
 
 Control user interruptions at runtime using mute/unmute events.
 
-## What This Does
+## Features
 
-Allows the agent to **temporarily block user interruptions** during important messages, then automatically restore normal conversation.
+- **SDKAgentControlMuteUserEvent** — Mutes user's microphone (platform-level)
+- **SDKAgentControlUnmuteUserEvent** — Unmutes user's microphone
+- **Auto-unmute** after each response to avoid leaving the user stuck
+- **Tool-based toggle** — LLM decides when to mute/unmute based on context
 
-**Key Mechanism:**
-- `SDKAgentControlMuteUserEvent` → Mutes user's microphone (platform-level)
-- `SDKAgentControlUnmuteUserEvent` → Unmutes user's microphone
-- User is **auto-unmuted** after each response
+## Requirements
 
-## When to Use This
+> Base dependencies are installed via the root `requirements.txt`. See the [main README](../../README.md#usage) for setup. Add `OPENAI_API_KEY` to your `.env`.
+
+## Usage
+
+Start the server:
+
+```bash
+uv run app.py
+```
+
+Connect with the CLI:
+
+```bash
+smallestai agent chat
+```
+
+**Try these:**
+- "Speak 7 words and I'll try to interrupt you"
+- "Disable interruptions and tell me a fact"
+- "Read me an important message"
+
+## Recommended Usage
 
 | Use Case | Example |
 |----------|---------|
@@ -21,7 +42,9 @@ Allows the agent to **temporarily block user interruptions** during important me
 | Reading long content | Terms and conditions, policies |
 | Critical information | Security codes, confirmation numbers |
 
-## How It Works
+Use sparingly — for normal conversational agents where users expect to interrupt, this is not needed.
+
+## Key Snippets
 
 ```
 User: "Read me 7 words without interruption"
@@ -37,45 +60,16 @@ Response completes → Auto-unmute
 User can speak again
 ```
 
-## Impact
+### Impact
 
 | When Muted | When Unmuted (default) |
 |------------|------------------------|
 | User's mic is silenced | Normal conversation |
 | User cannot interrupt | User can interrupt anytime |
 | Agent speaks uninterrupted | Natural back-and-forth |
-| Auto-unmutes after response | - |
+| Auto-unmutes after response | — |
 
-## Files
-
-- `app.py` - Server entry point
-- `configurable_agent.py` - Agent with mute/unmute tools
-
-## Quick Start
-
-```bash
-# Install
-pip install smallestai python-dotenv loguru
-
-# Configure .env
-OPENAI_API_KEY=your_key
-
-# Run
-python app.py
-```
-
-## Test with CLI
-
-```bash
-smallestai agent chat
-```
-
-**Try these:**
-- "Speak 7 words and I'll try to interrupt you"
-- "Disable interruptions and tell me a fact"
-- "Read me an important message"
-
-## Code Example
+### Key Code
 
 ```python
 from smallestai.atoms.agent.events import (
@@ -95,7 +89,7 @@ async def set_interruptible(self, enabled: bool) -> str:
         return "User muted. Speak now."
 ```
 
-## Auto-Unmute Pattern
+### Auto-Unmute Pattern
 
 Always unmute after the response to avoid leaving user stuck:
 
@@ -111,19 +105,32 @@ async def generate_response(self):
 
 ## Best Practices
 
-1. **Keep muted sections short** - Don't mute for long monologues
-2. **Always auto-unmute** - Never leave user permanently muted
-3. **Don't announce muting** - Just mute and speak the content
-4. **Use sparingly** - Only for truly important content
-5. **Test on platform** - Mute/unmute are platform-level events
+1. **Keep muted sections short** — Don't mute for long monologues
+2. **Always auto-unmute** — Never leave user permanently muted
+3. **Don't announce muting** — Just mute and speak the content
+4. **Use sparingly** — Only for truly important content
+5. **Test on platform** — Mute/unmute are platform-level events
 
 ## Limitations
 
 - Mute/unmute only works on deployed agents (not local CLI)
-- User is fully silenced - no partial muting
+- User is fully silenced — no partial muting
 - Mute persists until explicitly unmuted or response ends
+
+## Structure
+
+```
+interrupt_control/
+├── app.py                 # Server entry point
+└── configurable_agent.py  # Agent with mute/unmute tools
+```
+
+## API Reference
+
+- [Core Concepts — Events](https://atoms-docs.smallest.ai/dev/introduction/core-concepts/events)
+- [Core Concepts — Nodes](https://atoms-docs.smallest.ai/dev/introduction/core-concepts/nodes)
 
 ## Next Steps
 
-- See [Background Agent](../background_agent) for sentiment detection
-- See [Inbound IVR](../inbound_ivr) for call routing
+- [Background Agent](../background_agent/) — Sentiment detection
+- [Inbound IVR](../inbound_ivr/) — Call routing
