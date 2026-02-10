@@ -17,9 +17,11 @@
 
 # Smallest AI Cookbook
 
-Practical examples and tutorials for building with Smallest AI's APIs. Each example is self-contained and demonstrates a real-world use case.
+Smallest AI offers an end-to-end Voice AI suite for developers building real-time voice agents. You can use our Speech-to-Text APIs through Pulse STT for high-accuracy transcription, our Text-to-Speech APIs through Lightning TTS for natural-sounding speech synthesis, or use the Atoms Client to build and operate enterprise-ready Voice Agents with features like tool calling, knowledge bases, and campaign management.
 
-**For comprehensive documentation, visit [smallest.ai/docs](https://waves-docs.smallest.ai).**
+This cookbook contains practical examples and tutorials for building with Smallest AI's APIs. Each example is self-contained and demonstrates a real-world use case — from basic transcription to fully autonomous voice agents.
+
+**Documentation:** [Waves (STT & TTS)](https://waves-docs.smallest.ai) · [Atoms (Voice Agents)](https://atoms-docs.smallest.ai/dev) · [Python SDK](https://github.com/smallest-inc/smallest-python-sdk)
 
 ---
 
@@ -31,90 +33,79 @@ Practical examples and tutorials for building with Smallest AI's APIs. Each exam
 - Python >= 3.10 (install via `uv python install 3.13` if needed)
 - A Smallest AI API key — get one at [smallest.ai/console](https://smallest.ai/console)
 
-### Step 1: Create env + install base deps
+### Quick Start
+
+Clone the repo, set up a virtual environment, and install the shared dependencies:
 
 ```bash
-uv venv
-uv pip install -r requirements.txt
+git clone https://github.com/smallest-inc/cookbook.git
+cd cookbook
+uv venv && uv pip install -r requirements.txt
 ```
 
-This installs common dependencies (`requests`, `websockets`, `python-dotenv`, `smallestai`, `openai`, `groq`, `loguru`, `streamlit`, `gradio`) shared across examples.
+### Set up your API key
 
-### Step 2: Run an example
+Each example reads keys from the environment. The easiest way is to copy the `.env.sample` included in every example directory:
 
 ```bash
-# Set your API key
-export SMALLEST_API_KEY="your-api-key-here"
+cd speech-to-text/getting-started
+cp .env.sample .env
+# Add your keys to .env
+```
 
-# Run any example directly
+Or export directly in your shell:
+
+```bash
+export SMALLEST_API_KEY="your-api-key-here"
+```
+
+### Run an example
+
+```bash
 uv run speech-to-text/getting-started/python/transcribe.py recording.wav
 ```
 
-Some examples require extra dependencies. Install them first:
+Some examples need additional dependencies beyond the root `requirements.txt`. Each one has its own `requirements.txt` — install before running:
 
 ```bash
 uv pip install -r speech-to-text/websocket/jarvis/requirements.txt
 uv run speech-to-text/websocket/jarvis/jarvis.py
 ```
 
-Later, for another example:
+### API Keys
 
-```bash
-uv pip install -r speech-to-text/youtube-summarizer/requirements.txt
-uv run speech-to-text/youtube-summarizer/app.py
-```
-
-### Step 3: Set up API keys
-
-Each example includes a `.env.sample` file. Copy it and add your keys:
-
-```bash
-cd speech-to-text/getting-started
-cp .env.sample .env
-# Edit .env with your API keys
-```
-
-Or export directly:
-
-```bash
-export SMALLEST_API_KEY="your-api-key-here"
-```
-
-**API keys used across examples:**
-
-| Key | Where to get it | Used by |
-|-----|-----------------|---------|
-| `SMALLEST_API_KEY` | [smallest.ai/console](https://smallest.ai/console) | All examples |
-| `OPENAI_API_KEY` | [platform.openai.com](https://platform.openai.com/api-keys) | Podcast Summarizer, Meeting Notes, Voice Agents |
-| `GROQ_API_KEY` | [console.groq.com](https://console.groq.com) | YouTube Summarizer, Jarvis |
-| `RECALL_API_KEY` | [recall.ai](https://recall.ai) | Meeting Notes |
+- `SMALLEST_API_KEY` — [smallest.ai/console](https://smallest.ai/console) — Required by all examples
+- `OPENAI_API_KEY` — [platform.openai.com](https://platform.openai.com/api-keys) — Podcast Summarizer, Meeting Notes, Voice Agents
+- `GROQ_API_KEY` — [console.groq.com](https://console.groq.com) — YouTube Summarizer, Jarvis
+- `RECALL_API_KEY` — [recall.ai](https://recall.ai) — Meeting Notes
 
 ---
 
 ## Speech-to-Text Examples
 
-Convert audio and video to text with industry-leading accuracy. Supports 30+ languages. Powered by [Pulse STT](https://waves-docs.smallest.ai/v4.0.0/content/speech-to-text-new/overview).
+Convert audio and video to text with industry-leading accuracy. Supports 30+ languages with features like speaker diarization, word timestamps, and emotion detection. Powered by [Pulse STT](https://waves-docs.smallest.ai/v4.0.0/content/speech-to-text-new/overview).
 
-| Example | Description |
-|---------|-------------|
-| [Getting Started](./speech-to-text/getting-started/) | Basic transcription — the simplest way to start |
-| [Online Meeting Notetaker](./speech-to-text/online-meeting-notetaking-bot/) | Join meetings via Recall.ai, auto-identify speakers by name |
-| [Jarvis Voice Assistant](./speech-to-text/websocket/jarvis/) | Always-on assistant with wake word, LLM, and TTS |
+- [Getting Started](./speech-to-text/getting-started/) — Basic transcription, the simplest way to start
+- [Jarvis Voice Assistant](./speech-to-text/websocket/jarvis/) — Always-on assistant with wake word detection, LLM reasoning, and TTS
+- [Online Meeting Notetaker](./speech-to-text/online-meeting-notetaking-bot/) — Join Google Meet / Zoom / Teams via Recall.ai, auto-identify speakers by name, generate structured notes
+- [Podcast Summarizer](./speech-to-text/podcast-summarizer/) — Transcribe and summarize podcasts with key takeaways using GPT
+- [YouTube Summarizer](./speech-to-text/youtube-summarizer/) — Extract audio from YouTube videos and generate concise summaries
 
-**[See all 10 Speech-to-Text examples &rarr;](./speech-to-text/)**
+**[See all Speech-to-Text examples &rarr;](./speech-to-text/)**
 
 ---
 
 ## Voice Agents Examples
 
-Build voice AI agents with the [Atoms SDK](https://atoms-docs.smallest.ai/dev).
+Build AI voice agents that can talk to anyone on voice or text, in any language, in any voice. The Atoms SDK provides abstractions like KnowledgeBase, Campaigns, and graph-based Workflows to let you build the smartest voice agent for your use case. Powered by the [Atoms SDK](https://atoms-docs.smallest.ai/dev).
 
-| Example | What You'll Learn |
-|---------|-------------------|
-| [Getting Started](./voice-agents/getting_started/) | `OutputAgentNode`, `generate_response()`, `AtomsApp` |
-| [Agent with Tools](./voice-agents/agent_with_tools/) | `@function_tool`, `ToolRegistry`, tool execution |
+- [Getting Started](./voice-agents/getting_started/) — Create your first agent with `OutputAgentNode`, `generate_response()`, and `AtomsApp`
+- [Agent with Tools](./voice-agents/agent_with_tools/) — Add tool calling with `@function_tool` and `ToolRegistry`
+- [Knowledge Base RAG](./voice-agents/knowledge_base_rag/) — Attach a knowledge base with PDF upload and URL scraping for grounded responses
+- [Campaigns](./voice-agents/campaigns/) — Provision bulk outbound calling with audiences and campaign management
+- [Language Switching](./voice-agents/language_switching/) — Multi-node agents with dynamic language detection and switching
 
-**[See all 10 Voice Agents examples &rarr;](./voice-agents/)**
+**[See all Voice Agents examples &rarr;](./voice-agents/)**
 
 ---
 
