@@ -11,19 +11,12 @@ Create and populate Knowledge Bases for RAG-powered agents.
 
 ## Requirements
 
-> Base dependencies are installed via the root `requirements.txt`. See the [main README](../../README.md#usage) for setup. Add `SMALLEST_API_KEY` to your `.env`.
-
-Extra dependencies:
-
-```bash
-uv pip install -r requirements.txt
-```
-
-This installs `reportlab` for PDF generation in the demo script.
+> Make sure you've run `uv venv && uv pip install -r requirements.txt` at the repo root first. See the [main README](../../README.md#usage).
 
 ## Usage
 
 ```bash
+uv pip install -r requirements.txt
 uv run setup_kb.py
 ```
 

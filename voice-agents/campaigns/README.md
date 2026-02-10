@@ -27,9 +27,13 @@ Scripts for managing outbound calling campaigns.
 
 ## Requirements
 
-> Base dependencies are installed via the root `requirements.txt`. See the [main README](../../README.md#usage) for setup. Add `SMALLEST_API_KEY` and `AGENT_ID` to your `.env`.
+> Make sure you've run `uv venv && uv pip install -r requirements.txt` at the repo root first. See the [main README](../../README.md#usage). Add `SMALLEST_API_KEY` and `AGENT_ID` to your `.env`.
 
 ## Usage
+
+```bash
+uv pip install -r requirements.txt
+```
 
 ### Step 1: Create Audience
 

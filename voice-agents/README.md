@@ -15,6 +15,7 @@ Build AI voice agents with the [Atoms SDK](https://atoms-docs.smallest.ai/dev).
 | Example | What You'll Learn |
 |---------|-------------------|
 | [background_agent](./background_agent/) | `BackgroundAgentNode`, parallel nodes, cross-node state |
+| [observability](./observability/) | Langfuse integration via `BackgroundAgentNode` — live traces, tool spans, transcript events |
 | [language_switching](./language_switching/) | `add_edge()`, custom nodes, event pipelines |
 
 ## Call Handling
@@ -23,6 +24,12 @@ Build AI voice agents with the [Atoms SDK](https://atoms-docs.smallest.ai/dev).
 |---------|-------------------|
 | [inbound_ivr](./inbound_ivr/) | Intent routing, department transfers, mute/unmute |
 | [interrupt_control](./interrupt_control/) | Mute/unmute events, blocking interruptions |
+
+## Advanced
+
+| Example | What You'll Learn |
+|---------|-------------------|
+| [bank_csr](./bank_csr/) | Multi-round tool chaining, real SQLite DB, deterministic computation, audit logging, banking actions |
 
 ## Platform Features
 
@@ -34,24 +41,44 @@ Build AI voice agents with the [Atoms SDK](https://atoms-docs.smallest.ai/dev).
 
 ## Quick Start
 
-> **Prerequisites:** Make sure you've run `uv venv && uv pip install -r requirements.txt` at the repo root. See the [main README](../README.md#usage) for full setup.
+### Step 1: Create env + install base deps (once, from repo root)
 
 ```bash
-export SMALLEST_API_KEY=your_key
-export OPENAI_API_KEY=your_openai_key
-
-cd voice-agents/getting_started
-uv run app.py
+uv venv
+uv pip install -r requirements.txt
 ```
 
-Connect:
+### Step 2: Run an example
+
+```bash
+uv pip install -r voice-agents/getting_started/requirements.txt
+uv run voice-agents/getting_started/app.py
+```
+
+For another example:
+
+```bash
+uv pip install -r voice-agents/bank_csr/requirements.txt
+uv run voice-agents/bank_csr/app.py
+```
+
+### Step 3: Connect via CLI
+
 ```bash
 smallestai agent chat
 ```
 
+### API Keys
+
+```bash
+export SMALLEST_API_KEY=your_key
+export OPENAI_API_KEY=your_openai_key
+```
+
 ## Requirements
 
+- [uv](https://docs.astral.sh/uv/) (Python package manager)
 - Python 3.10+
-- `smallestai` SDK (installed via root `requirements.txt`)
+- `smallestai` SDK (`>=4.3.0`)
 - OpenAI API key (for LLM)
 - Smallest API key (for platform features)

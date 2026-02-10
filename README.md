@@ -72,6 +72,13 @@ uv pip install -r speech-to-text/websocket/jarvis/requirements.txt
 uv run speech-to-text/websocket/jarvis/jarvis.py
 ```
 
+For voice agent examples:
+
+```bash
+uv pip install -r voice-agents/bank_csr/requirements.txt
+uv run voice-agents/bank_csr/app.py
+```
+
 ### API Keys
 
 - `SMALLEST_API_KEY` — [smallest.ai/console](https://smallest.ai/console) — Required by all examples
@@ -99,11 +106,32 @@ Convert audio and video to text with industry-leading accuracy. Supports 30+ lan
 
 Build AI voice agents that can talk to anyone on voice or text, in any language, in any voice. The Atoms SDK provides abstractions like KnowledgeBase, Campaigns, and graph-based Workflows to let you build the smartest voice agent for your use case. Powered by the [Atoms SDK](https://atoms-docs.smallest.ai/dev).
 
+### Basics
+
 - [Getting Started](./voice-agents/getting_started/) — Create your first agent with `OutputAgentNode`, `generate_response()`, and `AtomsApp`
 - [Agent with Tools](./voice-agents/agent_with_tools/) — Add tool calling with `@function_tool` and `ToolRegistry`
+- [Call Control](./voice-agents/call_control/) — Cold/warm transfers and ending a call with `SDKAgentTransferConversationEvent`
+
+### Multi-Node Patterns
+
+- [Background Agent](./voice-agents/background_agent/) — `BackgroundAgentNode` for parallel processing, cross-node state sharing
+- [Observability](./voice-agents/observability/) — Langfuse integration via `BackgroundAgentNode` — live traces, tool spans, transcript events
+- [Language Switching](./voice-agents/language_switching/) — Multi-node agents with dynamic language detection and switching
+
+### Call Handling
+
+- [Inbound IVR](./voice-agents/inbound_ivr/) — Intent routing, department transfers, mute/unmute control
+- [Interrupt Control](./voice-agents/interrupt_control/) — Mute/unmute events, blocking user interruptions during critical speech
+
+### Platform Features
+
 - [Knowledge Base RAG](./voice-agents/knowledge_base_rag/) — Attach a knowledge base with PDF upload and URL scraping for grounded responses
 - [Campaigns](./voice-agents/campaigns/) — Provision bulk outbound calling with audiences and campaign management
-- [Language Switching](./voice-agents/language_switching/) — Multi-node agents with dynamic language detection and switching
+- [Analytics](./voice-agents/analytics/) — Call logs, transcript exports, post-call metrics
+
+### Advanced
+
+- [Bank CSR](./voice-agents/bank_csr/) — Full banking agent — SQL queries, multi-round tool chaining, identity verification, FD management, audit logging
 
 **[See all Voice Agents examples &rarr;](./voice-agents/)**
 
