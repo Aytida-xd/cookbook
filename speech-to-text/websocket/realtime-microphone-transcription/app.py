@@ -20,6 +20,9 @@ from urllib.parse import urlencode
 import gradio as gr
 import numpy as np
 from websockets.sync.client import connect
+from dotenv import load_dotenv
+
+load_dotenv()
 
 WS_URL = "wss://waves-api.smallest.ai/api/v1/pulse/get_text"
 SAMPLE_RATE = 16000

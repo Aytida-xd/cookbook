@@ -98,7 +98,7 @@ Convert audio and video to text with industry-leading accuracy. Supports 30+ lan
 | Example | Description |
 |---------|-------------|
 | [Getting Started](./speech-to-text/getting-started/) | Basic transcription — the simplest way to start |
-| [Meeting Notes](./speech-to-text/online-meeting-notetaking-bot/) | Join meetings via Recall.ai, auto-identify speakers by name |
+| [Online Meeting Notetaker](./speech-to-text/online-meeting-notetaking-bot/) | Join meetings via Recall.ai, auto-identify speakers by name |
 | [Jarvis Voice Assistant](./speech-to-text/websocket/jarvis/) | Always-on assistant with wake word, LLM, and TTS |
 
 **[See all 10 Speech-to-Text examples &rarr;](./speech-to-text/)**

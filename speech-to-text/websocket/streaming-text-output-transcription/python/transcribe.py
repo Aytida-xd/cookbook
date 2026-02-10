@@ -22,6 +22,9 @@ from urllib.parse import urlencode
 import librosa
 import numpy as np
 import websockets
+from dotenv import load_dotenv
+
+load_dotenv()
 
 WS_URL = "wss://waves-api.smallest.ai/api/v1/pulse/get_text"
 OUTPUT_DIR = "."
