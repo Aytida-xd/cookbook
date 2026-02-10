@@ -1,2 +1,0 @@
-smallestai>=4.2.0
-python-dotenv

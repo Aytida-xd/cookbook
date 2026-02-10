@@ -25,11 +25,20 @@ Convert audio to text using Smallest AI's Pulse Speech-to-Text API. Supports 30+
 
 ## Quick Start
 
+> **Prerequisites:** Make sure you've run `uv venv && uv pip install -r requirements.txt` at the repo root. See the [main README](../README.md#usage) for full setup.
+
 ```bash
 export SMALLEST_API_KEY="your-api-key-here"
+uv run speech-to-text/getting-started/python/transcribe.py recording.wav
 ```
 
-Get your API key at [smallest.ai/console](https://smallest.ai/console)
+Get your API key at [smallest.ai/console](https://smallest.ai/console).
+
+## Supported Languages
+
+`en` English · `es` Spanish · `fr` French · `de` German · `hi` Hindi · `zh` Chinese · `ja` Japanese · `ko` Korean · `pt` Portuguese · `ar` Arabic · and 20+ more
+
+Use `multi` for automatic language detection.
 
 ## Documentation
 
@@ -38,9 +47,3 @@ Get your API key at [smallest.ai/console](https://smallest.ai/console)
 - [Streaming Audio](https://waves-docs.smallest.ai/v4.0.0/content/speech-to-text-new/streaming/quickstart)
 - [Response Format](https://waves-docs.smallest.ai/v4.0.0/content/speech-to-text-new/realtime/response-format)
 - [API Reference](https://waves-docs.smallest.ai/v4.0.0/content/api-references/pulse-asr)
-
-## Supported Languages
-
-`en` English · `es` Spanish · `fr` French · `de` German · `hi` Hindi · `zh` Chinese · `ja` Japanese · `ko` Korean · `pt` Portuguese · `ar` Arabic · and 20+ more
-
-Use `multi` for automatic language detection.

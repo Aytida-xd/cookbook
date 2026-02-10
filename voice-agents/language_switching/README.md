@@ -2,13 +2,14 @@
 
 Multi-language support agent with automatic language detection and response.
 
-## Overview
+## Features
 
-This example demonstrates:
-- **Node Chaining** - Using `add_edge()` to create processing pipelines
-- **Custom Node Types** - Extending the base `Node` class
-- **Event Transformation** - Modifying events as they flow through the pipeline
-- **Cross-Node Communication** - Nodes querying each other's state
+- **Node Chaining** — Using `add_edge()` to create processing pipelines
+- **Custom Node Types** — Extending the base `Node` class
+- **Event Transformation** — Modifying events as they flow through the pipeline
+- **Cross-Node Communication** — Nodes querying each other's state
+- **Language Detection** — Automatic language identification with confidence scoring
+- **Profanity Filtering** — Post-processing pipeline for response sanitization
 
 ## Architecture
 
@@ -30,14 +31,31 @@ This example demonstrates:
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
-## Files
+## Requirements
 
-- `app.py` - Pipeline setup with edges
-- `language_detector.py` - Custom Node for language detection
-- `support_agent.py` - OutputAgentNode with language awareness
-- `profanity_filter.py` - Custom Node for response filtering
+> Base dependencies are installed via the root `requirements.txt`. See the [main README](../../README.md#usage) for setup. Add `OPENAI_API_KEY` to your `.env`.
 
-## Key Concepts
+## Usage
+
+Start the server:
+
+```bash
+uv run app.py
+```
+
+Connect with the CLI:
+
+```bash
+smallestai agent chat
+```
+
+## Recommended Usage
+
+- Sequential event processing pipelines — language detection, content filtering, event transformation
+- Pre/post-processing of events with custom `Node` classes and `add_edge()`
+- For parallel background processing, [Background Agent](../background_agent/) is recommended
+
+## Key Snippets
 
 ### Creating Custom Nodes
 
@@ -107,31 +125,7 @@ class SupportAgent(OutputAgentNode):
         return self.language_detector.detected_language
 ```
 
-## Setup
-
-1. Install dependencies:
-```bash
-pip install smallestai python-dotenv loguru
-```
-
-2. Create `.env` file:
-```bash
-OPENAI_API_KEY=your_openai_key
-```
-
-## Running the Example
-
-Start the server:
-```bash
-python app.py
-```
-
-Connect with the CLI:
-```bash
-smallestai agent chat
-```
-
-## Example Interaction
+## Example Output
 
 ```
 [LanguageDetector] Started
@@ -143,7 +137,7 @@ Agent: Hello! Welcome to our support line. I can help you in multiple languages.
 User: Hola, necesito ayuda con mi cuenta.
 [LanguageDetector] Detected: spanish (confidence: 95%)
 
-Agent: ¡Hola! Con gusto le ayudo con su cuenta. ¿Cuál es el problema?
+Agent: Hola! Con gusto le ayudo con su cuenta. Cual es el problema?
 
 User: No puedo iniciar sesión.
 
@@ -171,7 +165,22 @@ session.add_node(node_a)
 session.add_node(node_b)  # Both receive same events
 ```
 
+## Structure
+
+```
+language_switching/
+├── app.py                # Pipeline setup with edges
+├── language_detector.py  # Custom Node for language detection
+├── support_agent.py      # OutputAgentNode with language awareness
+└── profanity_filter.py   # Custom Node for response filtering
+```
+
+## API Reference
+
+- [Core Concepts — Graphs](https://atoms-docs.smallest.ai/dev/introduction/core-concepts/graphs)
+- [Core Concepts — Nodes](https://atoms-docs.smallest.ai/dev/introduction/core-concepts/nodes)
+
 ## Next Steps
 
-- See [Background Agent](../background_agent) for parallel processing
-- See [Interrupt Control](../interrupt_control) for mute/unmute control
+- [Background Agent](../background_agent/) — Parallel processing
+- [Interrupt Control](../interrupt_control/) — Mute/unmute control

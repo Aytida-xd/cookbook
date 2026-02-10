@@ -2,14 +2,13 @@
 
 Multi-node architecture with real-time sentiment analysis running alongside the main agent.
 
-## Overview
+## Features
 
-This example demonstrates:
-- **BackgroundAgentNode** - Processes events without producing output
-- **Multi-node sessions** - Multiple agents running in parallel
-- **Event handling** - Reacting to `UserStartedSpeaking`, `UserStoppedSpeaking`, `TranscriptUpdate`
-- **Cross-agent communication** - Main agent queries background agent state
-- **Auto-escalation** - Transfer based on detected frustration
+- **BackgroundAgentNode** — Processes events without producing audio output
+- **Multi-node sessions** — Multiple agents running in parallel
+- **Event handling** — Reacting to `UserStartedSpeaking`, `UserStoppedSpeaking`, `TranscriptUpdate`
+- **Cross-agent communication** — Main agent queries background agent state
+- **Auto-escalation** — Transfer based on detected frustration
 
 ## Architecture
 
@@ -32,13 +31,31 @@ This example demonstrates:
 └─────────────────────────────────────────────────────────┘
 ```
 
-## Files
+## Requirements
 
-- `app.py` - Session setup with multi-node architecture
-- `sentiment_analyzer.py` - BackgroundAgentNode for sentiment analysis
-- `support_agent.py` - OutputAgentNode with sentiment-aware responses
+> Base dependencies are installed via the root `requirements.txt`. See the [main README](../../README.md#usage) for setup. Add `OPENAI_API_KEY` to your `.env`.
 
-## Key Concepts
+## Usage
+
+Start the server:
+
+```bash
+uv run app.py
+```
+
+Connect with the CLI:
+
+```bash
+smallestai agent chat
+```
+
+## Recommended Usage
+
+- Background processing alongside your main agent — sentiment analysis, compliance monitoring, real-time analytics
+- Multi-node sessions where agents run in parallel and share state
+- For sequential pipeline processing, [Language Switching](../language_switching/) is recommended
+
+## Key Snippets
 
 ### BackgroundAgentNode
 
@@ -92,31 +109,7 @@ async def process_event(self, event: SDKEvent):
         pass
 ```
 
-## Setup
-
-1. Install dependencies:
-```bash
-pip install smallestai python-dotenv loguru
-```
-
-2. Create `.env` file:
-```bash
-OPENAI_API_KEY=your_openai_key
-```
-
-## Running the Example
-
-Start the server:
-```bash
-python app.py
-```
-
-Connect with the CLI:
-```bash
-smallestai agent chat
-```
-
-## Example Interaction
+## Example Output
 
 ```
 Assistant: Hello! I'm here to help. What can I assist you with today?
@@ -136,12 +129,26 @@ Assistant: I can hear this has been frustrating. Let me connect you with a super
 
 ## Use Cases
 
-- **Escalation triggers** - Auto-transfer when frustration is high
-- **Call quality monitoring** - Track sentiment across calls
-- **Agent coaching** - Real-time feedback for human agents
-- **Analytics** - Post-call sentiment reports
+- **Escalation triggers** — Auto-transfer when frustration is high
+- **Call quality monitoring** — Track sentiment across calls
+- **Agent coaching** — Real-time feedback for human agents
+- **Analytics** — Post-call sentiment reports
+
+## Structure
+
+```
+background_agent/
+├── app.py                  # Session setup with multi-node architecture
+├── sentiment_analyzer.py   # BackgroundAgentNode for sentiment analysis
+└── support_agent.py        # OutputAgentNode with sentiment-aware responses
+```
+
+## API Reference
+
+- [Agents — Overview](https://atoms-docs.smallest.ai/dev/build/agents/overview)
+- [Core Concepts — Nodes](https://atoms-docs.smallest.ai/dev/introduction/core-concepts/nodes)
 
 ## Next Steps
 
-- See [Language Switching](../language_switching) for chained node pipelines
-- See [Interrupt Control](../interrupt_control) for mute/unmute control
+- [Language Switching](../language_switching/) — Chained node pipelines with `add_edge()`
+- [Interrupt Control](../interrupt_control/) — Mute/unmute control

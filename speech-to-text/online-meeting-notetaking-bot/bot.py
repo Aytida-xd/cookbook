@@ -29,6 +29,9 @@ import sys
 import time
 import requests
 from datetime import datetime
+from dotenv import load_dotenv
+
+load_dotenv()
 
 RECALL_API_URL = "https://us-west-2.recall.ai/api/v1"
 RECALL_API_KEY = os.environ.get("RECALL_API_KEY")

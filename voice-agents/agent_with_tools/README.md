@@ -2,58 +2,19 @@
 
 Build an agent with custom function tools that the LLM can call.
 
-## Overview
+## Features
 
-This example demonstrates:
 - **@function_tool decorator** for defining tools
-- **ToolRegistry** for managing tools
-- **Tool execution** in generate_response
+- **ToolRegistry** for auto-discovering and managing tools
+- **Tool execution** in `generate_response` with parallel support
+- **Intermediate feedback pattern** — speak while tools execute to avoid silence
 
-## Files
-
-- `app.py` - Server entry point
-- `assistant_agent.py` - Agent with tool definitions
-- `pyproject.toml` - Project dependencies
-
-## Tools Included
-
-| Tool | Description |
-|------|-------------|
-| `get_weather` | Get current weather for a city |
-| `book_appointment` | Book an appointment |
-| `list_appointments` | List scheduled appointments |
-| `end_call` | End the call gracefully |
-
-## Setup
-
-1. Install dependencies:
-```bash
-pip install smallestai python-dotenv loguru
-```
-
-2. Create `.env` file:
-```bash
-OPENAI_API_KEY=your_openai_key
-```
-
-## Running the Example
-
-Start the server:
-```bash
-python app.py
-```
-
-Connect with the CLI:
-```bash
-smallestai agent chat
-```
-
-## Example Interactions
+## Demo
 
 **Weather Query**:
 ```
 User: What's the weather in Tokyo?
-Assistant: The weather in Tokyo is Clear, 68°F.
+Assistant: The weather in Tokyo is Clear, 68F.
 ```
 
 **Book Appointment**:
@@ -62,7 +23,31 @@ User: Book a haircut for tomorrow at 2pm
 Assistant: Booked haircut for 2024-01-16 at 14:00. Confirmation sent!
 ```
 
-## Key Code
+## Requirements
+
+> Base dependencies are installed via the root `requirements.txt`. See the [main README](../../README.md#usage) for setup. Add `OPENAI_API_KEY` to your `.env`.
+
+## Usage
+
+Start the server:
+
+```bash
+uv run app.py
+```
+
+Connect with the CLI:
+
+```bash
+smallestai agent chat
+```
+
+## Recommended Usage
+
+- When your agent needs to take actions — check weather, book appointments, look up data
+- Learning the `@function_tool` decorator, `ToolRegistry`, and intermediate feedback pattern
+- For call transfers and end-call handling, [Call Control](../call_control/) is recommended
+
+## Key Snippets
 
 ### Define Tools with Decorator
 
@@ -132,7 +117,29 @@ if tool_calls:
 
 This is essential for voice agents where silence feels unnatural.
 
+## Tools Included
+
+| Tool | Description |
+|------|-------------|
+| `get_weather` | Get current weather for a city |
+| `book_appointment` | Book an appointment |
+| `list_appointments` | List scheduled appointments |
+| `end_call` | End the call gracefully |
+
+## Structure
+
+```
+agent_with_tools/
+├── app.py               # Server entry point
+└── assistant_agent.py   # Agent with tool definitions
+```
+
+## API Reference
+
+- [Atoms SDK — Quick Start](https://atoms-docs.smallest.ai/dev/introduction/quickstart)
+- [Core Concepts — Nodes](https://atoms-docs.smallest.ai/dev/introduction/core-concepts/nodes)
+
 ## Next Steps
 
-- See [Call Control](../call_control) for ending calls and transfers
-- See [Getting Started](../getting_started) for basic SDK usage
+- [Call Control](../call_control/) — End calls, cold/warm transfers
+- [Getting Started](../getting_started/) — Review basic SDK usage

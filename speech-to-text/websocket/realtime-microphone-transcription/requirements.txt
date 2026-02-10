@@ -1,0 +1,2 @@
+# Extra dependencies for Realtime Microphone Transcription (beyond root requirements.txt)
+numpy

@@ -18,6 +18,9 @@ import sys
 from pathlib import Path
 
 import requests
+from dotenv import load_dotenv
+
+load_dotenv()
 
 API_URL = "https://waves-api.smallest.ai/api/v1/pulse/get_text"
 

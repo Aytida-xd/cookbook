@@ -2,36 +2,40 @@
 
 Get word-level timestamps and speaker diarization for detailed analysis of your transcription.
 
+## Features
+
+- Word-level start/end timestamps for every word
+- Speaker diarization — know who said what
+- Utterance grouping by speaker
+- JSON output with full metadata
+
+## Requirements
+
+> Base dependencies are installed via the root `requirements.txt`. See the [main README](../../README.md#usage) for setup. Add `SMALLEST_API_KEY` to your `.env`.
+
 ## Usage
 
 ### Python
 
 ```bash
-export SMALLEST_API_KEY="your-api-key"
-python python/transcribe.py audio.wav
+uv run python/transcribe.py audio.wav
 ```
 
 ### JavaScript
 
 ```bash
-export SMALLEST_API_KEY="your-api-key"
 node javascript/transcribe.js audio.wav
 ```
 
-## Features
+## Recommended Usage
 
-| Feature | Value | Description |
-|---------|-------|-------------|
-| `language` | `en` | Language code (ISO 639-1) |
-| `word_timestamps` | `true` | Enable word-level timestamps |
-| `diarize` | `true` | Enable speaker diarization |
+- When you need to know exactly when each word was spoken or who said what
+- Meeting transcription, closed captions, audio analytics with speaker diarization
+- For subtitle file generation, [Subtitle Generation](../subtitle-generation/) is recommended
 
-## Output
+## How It Works
 
-- Console output with transcription, utterances, and word timestamps
-- `{filename}_result.json` - Full API response
-
-## Output Format
+The API is called with `word_timestamps=true` and `diarize=true`. The response includes:
 
 ### Utterances (Speaker Diarization)
 
@@ -58,3 +62,27 @@ Each word includes timing and optional speaker info:
   "speaker": "speaker_0"
 }
 ```
+
+## Configuration
+
+| Feature | Value | Description |
+|---------|-------|-------------|
+| `language` | `en` | Language code (ISO 639-1) |
+| `word_timestamps` | `true` | Enable word-level timestamps |
+| `diarize` | `true` | Enable speaker diarization |
+
+## Example Output
+
+- Console output with transcription, utterances, and word timestamps
+- `{filename}_result.json` — Full API response
+
+## API Reference
+
+- [Pre-recorded Quickstart](https://waves-docs.smallest.ai/v4.0.0/content/speech-to-text-new/pre-recorded/quickstart)
+- [Response Format](https://waves-docs.smallest.ai/v4.0.0/content/speech-to-text-new/realtime/response-format)
+- [Pulse STT API Reference](https://waves-docs.smallest.ai/v4.0.0/content/api-references/pulse-asr)
+
+## Next Steps
+
+- [Subtitle Generation](../subtitle-generation/) — Turn word timestamps into SRT/VTT subtitle files
+- [File Transcription](../file-transcription/) — Add emotions, age, gender detection

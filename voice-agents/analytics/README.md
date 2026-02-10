@@ -2,34 +2,16 @@
 
 Scripts for retrieving and analyzing call data.
 
-## Overview
+## Features
 
-This cookbook demonstrates:
-- **Call Logs** - Retrieve and filter call history
-- **Call Details** - Get transcripts, recordings, and metadata
-- **Post-Call Analytics** - Configure and retrieve AI-extracted metrics
-- **Export** - Export transcripts for external analysis
+- **Call Logs** — Retrieve and filter call history
+- **Call Details** — Get transcripts, recordings, and metadata
+- **Post-Call Analytics** — Configure and retrieve AI-extracted metrics
+- **Export** — Export transcripts for external analysis
 
-## Files
+## Requirements
 
-| Script | Description |
-|--------|-------------|
-| `get_calls.py` | List calls with filtering options |
-| `get_call_details.py` | Get detailed info for a specific call |
-| `configure_post_call.py` | Set up post-call analytics |
-| `export_transcripts.py` | Export transcripts to file |
-
-## Setup
-
-1. Install dependencies:
-```bash
-pip install smallestai python-dotenv
-```
-
-2. Create `.env` file:
-```bash
-SMALLEST_API_KEY=your_smallest_api_key
-```
+> Base dependencies are installed via the root `requirements.txt`. See the [main README](../../README.md#usage) for setup. Add `SMALLEST_API_KEY` to your `.env`.
 
 ## Usage
 
@@ -37,57 +19,57 @@ SMALLEST_API_KEY=your_smallest_api_key
 
 ```bash
 # Get last 10 calls
-python get_calls.py
+uv run get_calls.py
 
 # Filter by agent
-python get_calls.py --agent agent_123
+uv run get_calls.py --agent agent_123
 
 # Filter by status
-python get_calls.py --status completed
+uv run get_calls.py --status completed
 
 # Get more results
-python get_calls.py --limit 50 --page 1
+uv run get_calls.py --limit 50 --page 1
 ```
 
 ### Get Call Details
 
 ```bash
 # Get full details including transcript
-python get_call_details.py CALL-1768155029217-0bae45
+uv run get_call_details.py CALL-1768155029217-0bae45
 ```
-
-Output includes:
-- Basic call info (duration, status, parties)
-- Recording URLs
-- Full transcript
-- Post-call analytics (if configured)
 
 ### Configure Post-Call Analytics
 
 ```bash
 # Show current configuration
-python configure_post_call.py agent_123 --show
+uv run configure_post_call.py agent_123 --show
 
 # Configure sample metrics
-python configure_post_call.py agent_123
+uv run configure_post_call.py agent_123
 ```
 
 ### Export Transcripts
 
 ```bash
 # Export as text
-python export_transcripts.py --output transcripts.txt
+uv run export_transcripts.py --output transcripts.txt
 
 # Export as JSON
-python export_transcripts.py --output transcripts.json --format json
+uv run export_transcripts.py --output transcripts.json --format json
 
 # Filter and limit
-python export_transcripts.py --agent agent_123 --limit 50 --output data.json
+uv run export_transcripts.py --agent agent_123 --limit 50 --output data.json
 ```
 
-## Post-Call Analytics
+## Recommended Usage
 
-### Configuration
+- Analyzing call outcomes, exporting transcripts, and setting up post-call metrics for quality monitoring
+- Configuring custom disposition metrics (ENUM, STRING, BOOLEAN, etc.)
+- For real-time in-call analytics, [Background Agent](../background_agent/) is recommended
+
+## Key Snippets
+
+### Post-Call Analytics Configuration
 
 Define custom metrics that are extracted from every call:
 
@@ -144,8 +126,6 @@ disposition = analytics.get("disposition", {})
 print(f"Outcome: {disposition.get('outcome')}")
 print(f"Satisfied: {disposition.get('satisfied')}")
 ```
-
-## Code Examples
 
 ### Get Calls with Filters
 
@@ -204,15 +184,29 @@ result = call.search_calls([
 | `callCost` | Cost breakdown |
 | `postCallAnalytics` | AI-extracted metrics |
 
+## Scripts Included
+
+```
+analytics/
+├── get_calls.py             # List calls with filtering options
+├── get_call_details.py      # Get detailed info for a specific call
+├── configure_post_call.py   # Set up post-call analytics
+└── export_transcripts.py    # Export transcripts to file
+```
+
 ## Best Practices
 
-1. **Filter Early** - Use query parameters to reduce data transfer
-2. **Paginate** - Use page/limit for large datasets
-3. **Configure Analytics** - Set up metrics before running calls
-4. **Export Regularly** - Archive transcripts for long-term analysis
-5. **Handle Missing Data** - Not all fields are always present
+1. **Filter Early** — Use query parameters to reduce data transfer
+2. **Paginate** — Use page/limit for large datasets
+3. **Configure Analytics** — Set up metrics before running calls
+4. **Export Regularly** — Archive transcripts for long-term analysis
+5. **Handle Missing Data** — Not all fields are always present
+
+## API Reference
+
+- [Analytics — Overview](https://atoms-docs.smallest.ai/dev/build/analytics/overview)
 
 ## Next Steps
 
-- See [Campaigns](../campaigns/) for outbound call management
-- See [Background Agent](../background_agent/) for real-time analytics
+- [Campaigns](../campaigns/) — Outbound call management
+- [Background Agent](../background_agent/) — Real-time in-call analytics

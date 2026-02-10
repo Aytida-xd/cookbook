@@ -1,54 +1,39 @@
 # Getting Started
 
-Your first Atoms agent - from zero to a running AI assistant.
+Your first Atoms agent — from zero to a running AI assistant.
 
-## Overview
+## Features
 
-This example demonstrates:
-- **OutputAgentNode** - The base class for conversational agents
-- **generate_response()** - Streaming LLM responses
-- **AtomsApp** - Running the agent server
-- **Event handling** - Greeting users on join
+- **OutputAgentNode** — The base class for conversational agents
+- **generate_response()** — Streaming LLM responses
+- **AtomsApp** — Running the agent server
+- **Event handling** — Greeting users on join
 
-## Files
+## Requirements
 
-- `app.py` - Server entry point
-- `my_agent.py` - Simple conversational agent
-- `pyproject.toml` - Project dependencies
+> Base dependencies are installed via the root `requirements.txt`. See the [main README](../../README.md#usage) for setup. Add `OPENAI_API_KEY` to your `.env`.
 
-## Setup
-
-1. Install dependencies:
-```bash
-pip install smallestai python-dotenv loguru
-```
-
-2. Create `.env` file:
-```bash
-OPENAI_API_KEY=your_openai_key
-```
-
-## Running the Example
+## Usage
 
 Start the server:
+
 ```bash
-python app.py
+uv run app.py
 ```
 
 Connect with the CLI:
+
 ```bash
 smallestai agent chat
 ```
 
-## Example Interaction
+## Recommended Usage
 
-```
-Assistant: Hello! I'm your AI assistant. How can I help you today?
-You: What's the capital of France?
-Assistant: The capital of France is Paris.
-```
+- Your starting point — the simplest possible Atoms agent with LLM responses
+- Learning the core concepts: `OutputAgentNode`, `generate_response()`, `AtomsApp`
+- For function calling, [Agent with Tools](../agent_with_tools/) is recommended
 
-## Key Code
+## Key Snippets
 
 ### Define an Agent
 
@@ -88,7 +73,28 @@ if __name__ == "__main__":
     app.run()
 ```
 
+## Structure
+
+```
+getting_started/
+├── app.py       # Server entry point
+└── my_agent.py  # Simple conversational agent
+```
+
+## Example Output
+
+```
+Assistant: Hello! I'm your AI assistant. How can I help you today?
+You: What's the capital of France?
+Assistant: The capital of France is Paris.
+```
+
+## API Reference
+
+- [Atoms SDK — Quick Start](https://atoms-docs.smallest.ai/dev/introduction/quickstart)
+- [Core Concepts — Nodes](https://atoms-docs.smallest.ai/dev/introduction/core-concepts/nodes)
+
 ## Next Steps
 
-- See [Agent with Tools](../agent_with_tools) for adding custom tools
-- See [Call Control](../call_control) for ending calls and transfers
+- [Agent with Tools](../agent_with_tools/) — Add custom function tools the LLM can call
+- [Call Control](../call_control/) — End calls and transfer to humans

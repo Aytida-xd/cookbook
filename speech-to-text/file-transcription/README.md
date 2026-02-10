@@ -2,25 +2,23 @@
 
 Transcribe audio files with advanced features like word timestamps, speaker diarization, and emotion detection.
 
-## What You'll Learn
+## Features
 
 - Transcribe audio files with language selection
 - Enable advanced features (timestamps, diarization, emotion detection)
+- Age and gender prediction
 - Save transcription as text and JSON
 
-## Setup
+## Requirements
 
-```bash
-export SMALLEST_API_KEY="your-api-key-here"
-```
+> Base dependencies are installed via the root `requirements.txt`. See the [main README](../../README.md#usage) for setup. Add `SMALLEST_API_KEY` to your `.env`.
 
 ## Usage
 
 ### Python
 
 ```bash
-pip install requests
-python python/transcribe.py recording.wav
+uv run python/transcribe.py recording.wav
 ```
 
 ### JavaScript
@@ -29,7 +27,14 @@ python python/transcribe.py recording.wav
 node javascript/transcribe.js recording.wav
 ```
 
-## Features
+## Recommended Usage
+
+- Transcription with paralinguistic features — emotions, age/gender detection
+- Batch processing of audio/video files with detailed metadata output
+- Speaker diarization and word-level timestamps on pre-recorded files
+- For streaming or PII/PCI redaction, the [WebSocket API](../websocket/streaming-text-output-transcription/) is recommended
+
+## Configuration
 
 | Parameter | Description | Default |
 |-----------|-------------|---------|
@@ -40,7 +45,17 @@ node javascript/transcribe.js recording.wav
 | `GENDER_DETECTION` | Predict gender of speaker | `false` |
 | `EMOTION_DETECTION` | Predict speaker emotions | `false` |
 
-## Output Files
+## Example Output
 
-- `{filename}_transcript.txt` - Plain text transcription
-- `{filename}_result.json` - Full API response with metadata
+- `{filename}_transcript.txt` — Plain text transcription
+- `{filename}_result.json` — Full API response with metadata
+
+## API Reference
+
+- [Pre-recorded Quickstart](https://waves-docs.smallest.ai/v4.0.0/content/speech-to-text-new/pre-recorded/quickstart)
+- [Pulse STT API Reference](https://waves-docs.smallest.ai/v4.0.0/content/api-references/pulse-asr)
+
+## Next Steps
+
+- [Word-Level Outputs](../word-level-outputs/) — Focused example for timestamps and diarization
+- [Subtitle Generation](../subtitle-generation/) — Generate SRT/VTT files from transcriptions

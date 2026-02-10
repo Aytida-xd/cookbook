@@ -1,5 +1,7 @@
-streamlit
+# Extra dependencies for YouTube Summarizer (beyond root requirements.txt)
 yt-dlp
-groq
-python-dotenv
-requests
+
+# System dependency: ffmpeg (required for audio extraction)
+# On Ubuntu/Debian: sudo apt install ffmpeg
+# On macOS: brew install ffmpeg
+# On Windows: winget install ffmpeg

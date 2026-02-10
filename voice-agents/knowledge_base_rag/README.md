@@ -2,22 +2,39 @@
 
 Create and populate Knowledge Bases for RAG-powered agents.
 
-## Overview
+## Features
 
-Two ways to add content to a Knowledge Base:
-1. **PDF Upload** - Upload PDF files via API
-2. **URL Scraping** - Scrape web pages via API
+- **PDF Upload** — Upload PDF files via API
+- **URL Scraping** — Scrape web pages via API
+- **KB Management** — Create, list, get, delete Knowledge Bases
+- **Item Status Tracking** — Monitor processing status of uploaded content
 
-## Quick Start
+## Requirements
+
+> Base dependencies are installed via the root `requirements.txt`. See the [main README](../../README.md#usage) for setup. Add `SMALLEST_API_KEY` to your `.env`.
+
+Extra dependencies:
 
 ```bash
-pip install smallestai python-dotenv reportlab
-
-# Set up .env with SMALLEST_API_KEY
-python setup_kb.py
+uv pip install -r requirements.txt
 ```
 
-## PDF Upload
+This installs `reportlab` for PDF generation in the demo script.
+
+## Usage
+
+```bash
+uv run setup_kb.py
+```
+
+## Recommended Usage
+
+- Giving your voice agent access to custom documents and web content for RAG-powered answers
+- PDF upload, URL scraping, and KB lifecycle management via API
+
+## Key Snippets
+
+### PDF Upload
 
 ```python
 from smallestai.atoms import KB
@@ -37,7 +54,7 @@ for item in items["data"]:
     print(f"{item['fileName']}: {item['processingStatus']}")
 ```
 
-## URL Scraping
+### URL Scraping
 
 ```python
 from smallestai.atoms import KB
@@ -58,7 +75,7 @@ kb.scrape_urls(kb_id, [
 scraped = kb.get_scraped_urls(kb_id)
 ```
 
-## KB Management
+### KB Management
 
 ```python
 kb = KB()
@@ -82,6 +99,11 @@ kb.delete(kb_id)
 - Text upload is not yet available via API (use dashboard)
 - Link KB to agent via `globalKnowledgeBaseId` in dashboard
 
+## API Reference
+
+- [Atoms SDK — Quick Start](https://atoms-docs.smallest.ai/dev/introduction/quickstart)
+
 ## Next Steps
 
-Link the KB to your agent in the dashboard to enable RAG.
+- Link the KB to your agent in the dashboard to enable RAG
+- See [Agent with Tools](../agent_with_tools/) for adding function tools alongside KB
