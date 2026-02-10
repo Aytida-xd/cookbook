@@ -35,7 +35,7 @@ Assistant: I'll brief my supervisor and connect you right away.
 
 ## Requirements
 
-> Base dependencies are installed via the root `requirements.txt`. See the [main README](../../README.md#usage) for setup. Add `OPENAI_API_KEY` to your `.env`.
+> Make sure you've run `uv venv && uv pip install -r requirements.txt` at the repo root first. See the [main README](../../README.md#usage).
 
 Configure transfer numbers in `app.py`:
 ```python
@@ -47,9 +47,8 @@ agent = SupportAgent(
 
 ## Usage
 
-Start the server:
-
 ```bash
+uv pip install -r requirements.txt
 uv run app.py
 ```
 

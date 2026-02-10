@@ -11,9 +11,13 @@ Scripts for retrieving and analyzing call data.
 
 ## Requirements
 
-> Base dependencies are installed via the root `requirements.txt`. See the [main README](../../README.md#usage) for setup. Add `SMALLEST_API_KEY` to your `.env`.
+> Make sure you've run `uv venv && uv pip install -r requirements.txt` at the repo root first. See the [main README](../../README.md#usage). Add `SMALLEST_API_KEY` to your `.env`.
 
 ## Usage
+
+```bash
+uv pip install -r requirements.txt
+```
 
 ### List Recent Calls
 

@@ -25,11 +25,12 @@ from smallestai.atoms.agent.events import (
     SDKAgentTransferConversationEvent,
     TransferOption,
     TransferOptionType,
+    WarmTransferHandoffOptionType,
+    WarmTransferPrivateHandoffOption,
 )
 from smallestai.atoms.agent.nodes import OutputAgentNode
 from smallestai.atoms.agent.tools import ToolRegistry, function_tool
 
-from audit_logger import AuditLogger
 from database import BankingDB, DB_SCHEMA_DESCRIPTION
 
 load_dotenv()
@@ -90,7 +91,8 @@ If verification fails twice, offer to connect to a human agent.
 - Break an FD (up to the full principal) and transfer to Savings.
 - Create a new FD from Savings balance.
 - Send TDS certificate for the last Financial Year over email.
-- Transfer to a human agent (cold transfer) when the customer asks or you cannot help.
+- Cold transfer to a human agent when the customer asks or you cannot help.
+- Warm transfer to a supervisor when the customer asks for escalation (briefs the supervisor first).
 Anything else → politely refuse and offer to transfer to a human agent.
 
 ## Available Database
@@ -111,8 +113,8 @@ Anything else → politely refuse and offer to transfer to a human agent.
 class CSRAgent(OutputAgentNode):
     """Rekha — Banking CSR with real database access and multi-round tool chaining."""
 
-    def __init__(self, db: BankingDB, audit: AuditLogger):
-        super().__init__(name="csr-agent")
+    def __init__(self, db: BankingDB, audit: Any = None):
+        super().__init__(name="csr-agent", is_interruptible=True)
 
         self.db = db
         self.audit = audit
@@ -181,12 +183,13 @@ class CSRAgent(OutputAgentNode):
             )
 
             # Log tool calls to audit
-            for tc, result in zip(tool_calls, results):
-                try:
-                    args = json.loads(tc.arguments)
-                except Exception:
-                    args = {"raw": tc.arguments}
-                self.audit.log_tool_call(tc.name, args, result.content or "")
+            if self.audit:
+                for tc, result in zip(tool_calls, results):
+                    try:
+                        args = json.loads(tc.arguments)
+                    except Exception:
+                        args = {"raw": tc.arguments}
+                    self.audit.log_tool_call(tc.name, args, result.content or "")
 
             # Add assistant + tool messages to context
             self.context.add_messages([
@@ -290,7 +293,8 @@ class CSRAgent(OutputAgentNode):
                 factors_matched.append("debit_card_last_four")
 
         n = len(factors_matched)
-        self.audit.log_verification(success=n >= 2, factors_used=factors_matched)
+        if self.audit:
+            self.audit.log_verification(success=n >= 2, factors_used=factors_matched)
 
         if n >= 3:
             self.is_verified = True
@@ -312,7 +316,7 @@ class CSRAgent(OutputAgentNode):
     # =========================================================================
 
     @function_tool()
-    def execute_query(self, sql: str) -> str:
+    def execute_query(self, sql: str) -> Any:
         """Execute a read-only SQL query against the banking database.
 
         Write a SELECT query to retrieve data. Only SELECT is allowed.
@@ -326,9 +330,8 @@ class CSRAgent(OutputAgentNode):
             rows = self.db.execute_read_query(sql)
             # Cap output to avoid exceeding context
             if len(rows) > 200:
-                rows = rows[:200]
-                return json.dumps(rows) + "\n... (truncated to 200 rows)"
-            return json.dumps(rows)
+                return rows[:200]
+            return rows
         except Exception as e:
             return f"QUERY ERROR: {e}"
 
@@ -337,7 +340,7 @@ class CSRAgent(OutputAgentNode):
     # =========================================================================
 
     @function_tool()
-    def analyze_data(self, data_json: str, analysis_type: str) -> str:
+    def analyze_data(self, data_json: str, analysis_type: str) -> Any:
         """Run deterministic numerical analysis on data. This uses pure Python
         computation — no LLM.  Always prefer this over computing in prose.
 
@@ -357,7 +360,7 @@ class CSRAgent(OutputAgentNode):
             return "ERROR: data_json is not valid JSON."
 
         if not rows:
-            return json.dumps({"result": "No data to analyse."})
+            return {"result": "No data to analyse."}
 
         analysis_type = analysis_type.strip().lower()
 
@@ -386,11 +389,11 @@ class CSRAgent(OutputAgentNode):
                 return int(row[key])
         return 0
 
-    def _analyze_total(self, rows: List[dict]) -> str:
+    def _analyze_total(self, rows: List[dict]) -> dict:
         total = sum(self._get_amount(r) for r in rows)
-        return json.dumps({"total": total, "count": len(rows), "currency": "INR"})
+        return {"total": total, "count": len(rows), "currency": "INR"}
 
-    def _analyze_trend_monthly(self, rows: List[dict]) -> str:
+    def _analyze_trend_monthly(self, rows: List[dict]) -> dict:
         monthly: Dict[str, int] = defaultdict(int)
         for r in rows:
             date_str = r.get("date", "")
@@ -413,9 +416,9 @@ class CSRAgent(OutputAgentNode):
             trend.append(entry)
             prev = amount
 
-        return json.dumps({"monthly_trend": trend, "currency": "INR"})
+        return {"monthly_trend": trend, "currency": "INR"}
 
-    def _analyze_trend_yearly(self, rows: List[dict]) -> str:
+    def _analyze_trend_yearly(self, rows: List[dict]) -> dict:
         yearly: Dict[str, int] = defaultdict(int)
         for r in rows:
             date_str = r.get("date", "")
@@ -435,9 +438,9 @@ class CSRAgent(OutputAgentNode):
             trend.append(entry)
             prev = amount
 
-        return json.dumps({"yearly_trend": trend, "currency": "INR"})
+        return {"yearly_trend": trend, "currency": "INR"}
 
-    def _analyze_comparison(self, rows: List[dict]) -> str:
+    def _analyze_comparison(self, rows: List[dict]) -> dict:
         groups: Dict[str, int] = defaultdict(int)
         for r in rows:
             g = r.get("group", r.get("period", "unknown"))
@@ -449,39 +452,39 @@ class CSRAgent(OutputAgentNode):
             a, b = items[0][1], items[1][1]
             result["difference"] = b - a
             result["change_pct"] = round((b - a) / a * 100, 1) if a != 0 else 0
-        return json.dumps(result)
+        return result
 
-    def _analyze_top_merchants(self, rows: List[dict]) -> str:
+    def _analyze_top_merchants(self, rows: List[dict]) -> dict:
         merchants: Dict[str, int] = defaultdict(int)
         for r in rows:
             desc = r.get("description", "unknown")
             merchants[desc] += self._get_amount(r)
 
         ranked = sorted(merchants.items(), key=lambda x: x[1], reverse=True)
-        return json.dumps({
+        return {
             "ranking": [{"merchant": m, "total": t} for m, t in ranked],
             "currency": "INR",
-        })
+        }
 
-    def _analyze_summary(self, rows: List[dict]) -> str:
+    def _analyze_summary(self, rows: List[dict]) -> dict:
         values = [self._get_amount(r) for r in rows]
         if not values:
-            return json.dumps({"error": "No numeric values found."})
-        return json.dumps({
+            return {"error": "No numeric values found."}
+        return {
             "count": len(values),
             "total": sum(values),
             "min": min(values),
             "max": max(values),
             "average": round(sum(values) / len(values), 2),
             "currency": "INR",
-        })
+        }
 
     # =========================================================================
     # TOOL: Get account summary (quick helper)
     # =========================================================================
 
     @function_tool()
-    def get_account_summary(self) -> str:
+    def get_account_summary(self) -> Dict[str, Any]:
         """Retrieve a quick summary: savings balance, FDs, and cards.
 
         Use this for a high-level overview. For detailed queries, use execute_query.
@@ -495,13 +498,13 @@ class CSRAgent(OutputAgentNode):
             cards = self.db.execute_read_query(
                 "SELECT type, last_four, expiry, credit_limit, apr, offers FROM cards"
             )
-            return json.dumps({
+            return {
                 "savings_balance": balance,
                 "fixed_deposits": fds,
                 "cards": cards,
                 "currency": "INR",
                 "as_of": "2025-04-30",
-            })
+            }
         except Exception as e:
             return f"ERROR: {e}"
 
@@ -510,7 +513,7 @@ class CSRAgent(OutputAgentNode):
     # =========================================================================
 
     @function_tool()
-    def create_fixed_deposit(self, amount: int, tenure_years: int) -> str:
+    def create_fixed_deposit(self, amount: int, tenure_years: int) -> Dict[str, Any]:
         """Create a new Fixed Deposit from Savings Account balance.
 
         Validates available balance, deducts from savings, and creates the FD.
@@ -559,15 +562,16 @@ class CSRAgent(OutputAgentNode):
         new_balance = balance - amount
         self.db.update_balance(new_balance)
 
-        self.audit.log_banking_action("CREATE_FD", {
-            "fd_account": fd_acct,
-            "principal": amount,
-            "tenure": tenure_str,
-            "rate": rate,
-            "maturity_date": maturity_date,
-        })
+        if self.audit:
+            self.audit.log_banking_action("CREATE_FD", {
+                "fd_account": fd_acct,
+                "principal": amount,
+                "tenure": tenure_str,
+                "rate": rate,
+                "maturity_date": maturity_date,
+            })
 
-        return json.dumps({
+        return {
             "status": "FD created successfully",
             "fd_account": fd_acct,
             "principal": amount,
@@ -577,14 +581,14 @@ class CSRAgent(OutputAgentNode):
             "maturity_amount": maturity_amount,
             "maturity_date": maturity_date,
             "new_savings_balance": new_balance,
-        })
+        }
 
     # =========================================================================
     # TOOL: Break Fixed Deposit
     # =========================================================================
 
     @function_tool()
-    def break_fixed_deposit(self, fd_account: str, amount: int) -> str:
+    def break_fixed_deposit(self, fd_account: str, amount: int) -> Dict[str, Any]:
         """Break (partially or fully) a Fixed Deposit and credit Savings.
 
         A 1% penalty is applied on the broken amount.
@@ -630,28 +634,29 @@ class CSRAgent(OutputAgentNode):
         new_balance = balance + credit_amount
         self.db.update_balance(new_balance)
 
-        self.audit.log_banking_action("BREAK_FD", {
-            "fd_account": fd_account,
-            "amount_broken": amount,
-            "penalty": penalty,
-            "credited_to_savings": credit_amount,
-        })
+        if self.audit:
+            self.audit.log_banking_action("BREAK_FD", {
+                "fd_account": fd_account,
+                "amount_broken": amount,
+                "penalty": penalty,
+                "credited_to_savings": credit_amount,
+            })
 
-        return json.dumps({
+        return {
             "status": "FD broken successfully",
             "amount_broken": amount,
             "penalty_1_pct": penalty,
             "credited_to_savings": credit_amount,
             "new_savings_balance": new_balance,
             "remaining_fd_principal": new_principal,
-        })
+        }
 
     # =========================================================================
     # TOOL: Send TDS Certificate
     # =========================================================================
 
     @function_tool()
-    def send_tds_certificate(self, email: str) -> str:
+    def send_tds_certificate(self, email: str) -> Dict[str, Any]:
         """Send TDS certificate for the last Financial Year (FY 2024-25) to
         the given email address.
 
@@ -665,24 +670,25 @@ class CSRAgent(OutputAgentNode):
         parts = email.split("@")
         masked = parts[0][0] + "***@" + parts[1]
 
-        self.audit.log_banking_action("SEND_TDS_CERTIFICATE", {
-            "email_masked": masked,
-            "financial_year": "2024-25",
-        })
+        if self.audit:
+            self.audit.log_banking_action("SEND_TDS_CERTIFICATE", {
+                "email_masked": masked,
+                "financial_year": "2024-25",
+            })
 
-        return json.dumps({
+        return {
             "status": "TDS certificate for FY 2024-25 has been queued for delivery.",
             "email_masked": masked,
             "note": "It will arrive within 24 hours.",
-        })
+        }
 
     # =========================================================================
-    # TOOL: Transfer to human agent
+    # TOOL: Cold transfer to human agent
     # =========================================================================
 
     @function_tool()
     async def transfer_to_human_agent(self) -> None:
-        """Cold-transfer the call to a human agent.
+        """Cold-transfer the call to a human agent (immediate handoff).
 
         Use when:
         - Verification fails twice
@@ -697,6 +703,38 @@ class CSRAgent(OutputAgentNode):
                     type=TransferOptionType.COLD_TRANSFER,
                 ),
                 on_hold_music="relaxing_sound",
+            )
+        )
+        return None
+
+    # =========================================================================
+    # TOOL: Warm transfer to supervisor
+    # =========================================================================
+
+    @function_tool()
+    async def warm_transfer_to_supervisor(self, reason: str) -> None:
+        """Warm-transfer: brief the supervisor first, then connect the customer.
+
+        Use when:
+        - The customer asks for a supervisor or manager
+        - A complex issue needs escalation with context
+        - You want to brief the receiving agent before handoff
+
+        Args:
+            reason: Brief summary of the customer's issue for the supervisor.
+        """
+        transfer_number = os.getenv("TRANSFER_NUMBER", "+916366821717")
+        await self.send_event(
+            SDKAgentTransferConversationEvent(
+                transfer_call_number=transfer_number,
+                transfer_options=TransferOption(
+                    type=TransferOptionType.WARM_TRANSFER,
+                    private_handoff_option=WarmTransferPrivateHandoffOption(
+                        type=WarmTransferHandoffOptionType.PROMPT,
+                        prompt=f"Customer escalation at Smallest Bank: {reason}",
+                    ),
+                ),
+                on_hold_music="uplifting_beats",
             )
         )
         return None

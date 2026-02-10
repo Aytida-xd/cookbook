@@ -1,2 +1,3 @@
-# Extra dependencies for Knowledge Base RAG (beyond root requirements.txt)
+# Extra dependency for PDF generation in the demo script
+smallestai>=4.3.0
 reportlab

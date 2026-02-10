@@ -1,12 +1,4 @@
-"""Bank CSR Example — End-to-end voice banking agent with real database access.
-
-Demonstrates:
-- Multi-round tool chaining (SQL query → deterministic analysis → response)
-- Session-based identity verification
-- Banking actions (FD create/break, TDS certificate)
-- BackgroundAgentNode for compliance audit logging
-- Real SQLite database with synthetic banking data
-"""
+"""Bank CSR Example - Multi-round tool chaining with real database access."""
 
 from loguru import logger
 
@@ -20,25 +12,25 @@ from smallestai.atoms.agent.session import AgentSession
 
 
 async def setup_session(session: AgentSession):
-    """Configure the banking CSR session.
+    """Configure banking CSR session.
 
     Architecture:
-      AuditLogger (BackgroundAgentNode) — silently logs all events
-      CSRAgent    (OutputAgentNode)     — handles conversation + tools
-    Both nodes receive the same events in parallel.
+    - BankingDB: In-memory SQLite with synthetic banking data
+    - AuditLogger (BackgroundAgentNode): Silent compliance logging
+    - CSRAgent (OutputAgentNode): Handles conversation, verification, SQL queries,
+      deterministic analysis, and banking actions via multi-round tool chaining
+
+    Both nodes run in parallel, receiving the same events.
     """
 
-    # Shared database — created fresh per session
     db = BankingDB()
 
-    # Background node: audit logging
+    # Background audit logger — silent compliance node
     audit = AuditLogger(db=db)
-
-    # Main conversational agent: Rekha
-    csr = CSRAgent(db=db, audit=audit)
-
-    # Register nodes (both run in parallel)
     session.add_node(audit)
+
+    # Main conversational agent
+    csr = CSRAgent(db=db, audit=audit)
     session.add_node(csr)
 
     await session.start()
@@ -58,10 +50,9 @@ async def setup_session(session: AgentSession):
 
     await session.wait_until_complete()
 
-    # Print audit summary at end of call
+    # Log audit summary at session end
     summary = audit.get_summary()
     logger.info(f"Audit summary: {summary}")
-
     full_log = db.get_audit_log()
     logger.info(f"Total audit entries: {len(full_log)}")
 
