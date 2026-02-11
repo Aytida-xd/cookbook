@@ -2,6 +2,10 @@
 
 Visualize speaker emotions across a conversation. Upload any recording and see who said what — and how they felt saying it — powered by Smallest AI Pulse STT emotion detection.
 
+## Demo
+
+![Demo](demo/demo.gif)
+
 ## Features
 
 - Upload audio and get a diarized transcript with per-segment emotion scores
