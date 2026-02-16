@@ -138,6 +138,24 @@ Build AI voice agents that can talk to anyone on voice or text, in any language,
 
 ---
 
+## Integrations
+
+Use Smallest AI with popular frameworks and libraries.
+
+### LangChain
+
+Build voice AI applications using LangChain for chains, agents, memory, and prompt orchestration with Smallest AI for STT and TTS.
+
+- [STT as LangChain Tool](./integrations/langchain/stt-as-langchain-tool/) — Wrap Pulse STT as a LangChain Tool
+- [TTS as LangChain Tool](./integrations/langchain/tts-as-langchain-tool/) — Wrap Lightning TTS as a LangChain Tool
+- [Voice-Optimized Prompts](./integrations/langchain/voice-optimized-prompts/) — Prompt templates tuned for spoken output
+- [Conversation Memory for Voice](./integrations/langchain/conversation-memory-for-voice/) — Memory strategies for voice conversations
+- [Voice AI Agent](./integrations/langchain/examples/voice-ai-agent/) — End-to-end example: audio → STT → LangChain agent → TTS → audio
+
+**[See all LangChain integrations &rarr;](./integrations/langchain/)**
+
+---
+
 ## Language Support
 
 Each example includes implementations in:
