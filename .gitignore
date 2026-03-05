@@ -17,6 +17,9 @@ ENV/
 dist/
 build/
 .eggs/
+.streamlit/
+.streamlit/*.toml
+
 
 # JavaScript/Node
 node_modules/
