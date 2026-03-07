@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Voice Explorer — Preview all Smallest AI voices with semantic search."""
+"""Voice Explorer -- Preview all Smallest AI voices with semantic search."""
 
 import base64
 import hashlib
@@ -85,7 +85,7 @@ def synthesize(text: str, voice_id: str, model: str, api_key: str) -> bytes:
 # ---------------------------------------------------------------------------
 
 
-@st.cache_resource(show_spinner="Loading semantic search model…")
+@st.cache_resource(show_spinner="Loading semantic search model...")
 def _load_embed_model() -> TextEmbedding:
     return TextEmbedding("BAAI/bge-small-en-v1.5")
 
@@ -194,7 +194,7 @@ def render_voice_card(voice: dict, is_cloned: bool, preview_text: str, model: st
 
         if emotions:
             preview = ", ".join(emotions[:3]) + (f" +{len(emotions) - 3}" if len(emotions) > 3 else "")
-            st.caption(f"🎭 {preview}")
+            st.caption(f"Emotions: {preview}")
 
         key = _cache_key(voice_id, model, preview_text)
         cached = st.session_state.get("audio_cache", {}).get(key)
@@ -211,12 +211,12 @@ def render_voice_card(voice: dict, is_cloned: bool, preview_text: str, model: st
                 unsafe_allow_html=True,
             )
 
-        if st.button("▶ Try it", key=f"play_{voice_id}", use_container_width=True):
+        if st.button("Try it", key=f"play_{voice_id}", use_container_width=True):
             if not preview_text.strip():
                 st.warning("Enter preview text above.")
             else:
                 if key not in st.session_state.get("audio_cache", {}):
-                    with st.spinner("Generating…"):
+                    with st.spinner("Generating..."):
                         try:
                             audio = synthesize(preview_text, voice_id, model, api_key)
                             st.session_state.setdefault("audio_cache", {})[key] = audio
@@ -244,7 +244,7 @@ def render_voice_grid(voices: list[dict], is_cloned: bool, preview_text: str, mo
 
 
 def main() -> None:
-    st.set_page_config(page_title="Voice Explorer — Smallest AI", page_icon="🎙️", layout="wide")
+    st.set_page_config(page_title="Voice Explorer - Smallest AI", layout="wide")
 
     st.markdown(
         """
@@ -261,7 +261,7 @@ def main() -> None:
         unsafe_allow_html=True,
     )
 
-    st.title("🎙️ Voice Explorer")
+    st.title("Voice Explorer")
     st.caption("Preview every Smallest AI voice. Search by use case, emotion, accent, or language.")
 
     api_key = os.getenv("SMALLEST_API_KEY", "")
@@ -274,15 +274,15 @@ def main() -> None:
         preview_text = st.text_input(
             "Preview text",
             value="Hello! I'm your AI assistant. How can I help you today?",
-            placeholder="Type something to hear each voice say it…",
+            placeholder="Type something to hear each voice say it...",
         )
     with col_model:
         model_label = st.selectbox("Model", list(MODELS.keys()))
     model = MODELS[model_label]
 
     search_query = st.text_input(
-        "🔍 Search by use case or attributes",
-        placeholder="e.g. calm meditation, news anchor, warm storytelling, British female…",
+        "Search by use case or attributes",
+        placeholder="e.g. calm meditation, news anchor, warm storytelling, British female...",
     )
 
     st.divider()

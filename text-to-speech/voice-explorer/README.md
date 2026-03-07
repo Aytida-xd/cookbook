@@ -12,8 +12,11 @@ Interactive browser for all Smallest AI voices. Type preview text, pick a model,
 ## Requirements
 
 ```bash
-# Install dependencies
+# From the repo root
 uv pip install -r requirements.txt
+
+# Extra dependencies for this example
+uv pip install -r text-to-speech/voice-explorer/requirements.txt
 ```
 
 Copy `.env.sample` to `.env` and add your key:
@@ -25,6 +28,8 @@ SMALLEST_API_KEY=your-smallest-api-key-here
 ## Usage
 
 ```bash
+python app.py
+# or
 streamlit run app.py
 ```
 
