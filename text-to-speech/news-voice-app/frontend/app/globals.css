@@ -1,0 +1,36 @@
+@import "tailwindcss";
+
+:root {
+  --bg:           #092023;
+  --dark:         #1D4E52;
+  --teal:         #43B6B6;
+  --cream:        #FBFAF5;
+  --cream-mid:    #F8F7F2;
+  --cream-muted:  #EFEDE9;
+  --yellow:       #FFCF72;
+  --coral:        #FF5E5E;
+  --blue:         #3E91D5;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--cream);
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+@keyframes pulse-ring {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.4); }
+}
+
+.playing-dot {
+  animation: pulse-ring 1.2s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.spin {
+  animation: spin 0.8s linear infinite;
+}
