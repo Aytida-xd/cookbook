@@ -62,6 +62,7 @@ python text-to-speech/quickstart/quickstart.py
 | [Audiobook Generator](./audiobook-generator/) | Convert any text file into a narrated, chaptered audiobook |
 | [Voice Explorer](./voice-explorer/) | Interactive browser to preview all voices, search by use case or emotion, and play audio inline |
 | [News Voice App](./news-voice-app/) | Web dashboard that groups headlines into story clusters and plays each as a 2-3 min audio summary |
+| [Language Translation App](./language-translation-app/) | Translate text between 40+ languages with TTS and STT — type or speak input, hear results spoken aloud |
 
 ## Full Setup
 
